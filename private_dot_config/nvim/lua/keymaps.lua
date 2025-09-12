@@ -1,0 +1,1 @@
+-- general mappings here (for now mostly CP is in cp.lua)
