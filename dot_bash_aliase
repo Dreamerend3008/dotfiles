@@ -1,0 +1,33 @@
+runcpp() {
+    if [ -z "$1" ]; then
+        echo "Usage: run <filename.cpp>"
+        return 1
+    fi
+    local SRC="$1"
+    local OUT="${SRC%.*}"
+    g++ -std=c++17 -Wall "$SRC" -o "$OUT" && ./"$OUT"
+}
+Contest() {
+    local SRC="{{ .homeDir }}/cp/tmplcontest"
+    local DEST=$1
+
+    if [ -z "$DEST" ]; then
+        echo "Usage: Contest <new_contest_name>"
+        return 1
+    fi
+
+    if [ ! -d "$SRC" ]; then
+        echo "Template folder '$SRC' does not exist."
+        return 1
+    fi
+
+    if [ -d "$DEST" ]; then
+        echo "Destination folder '$DEST' already exists."
+        return 1
+    fi
+
+    cp -r "$SRC" "$DEST"
+    cd "$DEST" || { echo "Directory not found: $DEST"; return 1; }
+
+    echo "✅ New contest created: $DEST"
+}
