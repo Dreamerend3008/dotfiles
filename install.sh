@@ -14,7 +14,8 @@ sudo apt-get install -y \
     curl \
     unzip \
     pkg-config \
-    libssl-dev
+    libssl-dev \
+    snapd
 
 # --- Install chezmoi if not present ---
 if ! command -v chezmoi &>/dev/null; then
@@ -27,16 +28,13 @@ fi
 echo "⚙️ Applying chezmoi dotfiles..."
 chezmoi apply
 
-# --- Install Neovim using bob ---
-if ! command -v bob &>/dev/null; then
-    echo "📥 Installing bob (Neovim version manager)..."
-    curl -sL https://raw.githubusercontent.com/MordechaiHadad/bob/main/install.sh | bash
-    export PATH="$HOME/.local/bin:$PATH"
+# --- Install Neovim using snap ---
+if ! command -v nvim &>/dev/null; then
+    echo "📥 Installing Neovim (snap)..."
+    sudo snap install nvim --classic
+else
+    echo "✅ Neovim already installed: $(nvim --version | head -n 1)"
 fi
-
-echo "📦 Installing latest Neovim with bob..."
-bob install latest
-bob use latest
 
 # --- Ensure ~/.bash_aliase is sourced in .bashrc ---
 if ! grep -q 'source ~/.bash_aliase' "$HOME/.bashrc"; then
