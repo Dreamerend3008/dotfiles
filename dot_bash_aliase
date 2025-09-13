@@ -8,7 +8,7 @@ runcpp() {
     g++ -std=c++17 -Wall "$SRC" -o "$OUT" && ./"$OUT"
 }
 Contest() {
-    local SRC="{{ .homeDir }}/cp/tmplcontest"
+    local SRC="$HOME/cp/tmplcontest"
     local DEST=$1
 
     if [ -z "$DEST" ]; then
