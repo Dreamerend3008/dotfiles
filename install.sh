@@ -36,11 +36,4 @@ else
     echo "✅ Neovim already installed: $(nvim --version | head -n 1)"
 fi
 
-# --- Ensure ~/.bash_aliase is sourced in .bashrc ---
-if ! grep -q 'source ~/.bash_aliase' "$HOME/.bashrc"; then
-    echo "📎 Adding ~/.bash_aliase sourcing to .bashrc"
-    echo '[ -f ~/.bash_aliase ] && source ~/.bash_aliase' >> "$HOME/.bashrc"
-fi
-
-echo "✅ Setup complete. Restart your shell or run: source ~/.bashrc"
 
