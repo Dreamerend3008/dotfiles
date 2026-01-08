@@ -1,0 +1,155 @@
+# ░█▀▀░▀█▀░█▀█░█▀▄░█▀▀░█░█░▀█▀░█▀█
+# ░▀▀█░░█░░█▀█░█▀▄░▀▀█░█▀█░░█░░█▀▀
+# ░▀▀▀░░▀░░▀░▀░▀░▀░▀▀▀░▀░▀░▀▀▀░▀░░
+# ╔══════════════════════════════════════════════════════════════════════════════╗
+# ║                         STARSHIP CONFIGURATION                                ║
+# ║                                                                               ║
+# ║  Modern minimalist prompt with Catppuccin-inspired colors.                   ║
+# ║  This file is copied to ~/.config/starship.toml by Home Manager.             ║
+# ║                                                                               ║
+# ║  Docs: https://starship.rs/config/                                           ║
+# ╚══════════════════════════════════════════════════════════════════════════════╝
+
+# Main format - what appears on each line
+# $directory = current folder
+# $git_branch$git_status = git info (only shows in git repos)
+# $fill = pushes everything after to the right
+# Language icons only show when relevant files are detected
+format = """
+$directory$git_branch$git_status$fill$nodejs$python$rust$golang$java$docker_context$cmd_duration
+$character"""
+
+# Add a blank line before each prompt
+add_newline = true
+
+# ┌────────────────────────────────────────────────────────────────────────────┐
+# │ FILL - Pushes right-side content to the right                              │
+# └────────────────────────────────────────────────────────────────────────────┘
+[fill]
+symbol = " "
+
+# ┌────────────────────────────────────────────────────────────────────────────┐
+# │ CHARACTER - The prompt symbol (❯)                                          │
+# │                                                                            │
+# │ Changes color based on last command's success/failure                      │
+# └────────────────────────────────────────────────────────────────────────────┘
+[character]
+success_symbol = "[❯](bold #89b4fa)"    # Blue when last command succeeded
+error_symbol = "[❯](bold #f38ba8)"      # Red when last command failed
+vimcmd_symbol = "[❮](bold #a6e3a1)"     # Green in vim mode
+
+# ┌────────────────────────────────────────────────────────────────────────────┐
+# │ DIRECTORY - Current working directory                                      │
+# └────────────────────────────────────────────────────────────────────────────┘
+[directory]
+style = "bold #cba6f7"                  # Purple color
+truncation_length = 3                   # Show max 3 parent folders
+truncate_to_repo = true                 # Start from git root in repos
+read_only = " 󰌾"                        # Icon for read-only directories
+read_only_style = "bold #f38ba8"
+format = "[$path]($style)[$read_only]($read_only_style) "
+home_symbol = "~"
+
+# Replace long folder names with icons
+[directory.substitutions]
+"Documents" = "󰈙 "
+"Downloads" = " "
+"Music" = "󰝚 "
+"Pictures" = " "
+"Projects" = "󰲋 "
+".config" = " "
+
+# ┌────────────────────────────────────────────────────────────────────────────┐
+# │ GIT - Branch and status information                                        │
+# └────────────────────────────────────────────────────────────────────────────┘
+[git_branch]
+symbol = ""                            # Git branch icon
+style = "bold #fab387"                  # Orange color
+format = "[$symbol $branch]($style) "
+truncation_length = 20
+
+[git_status]
+style = "bold #f9e2af"                  # Yellow color
+format = "([$all_status$ahead_behind]($style) )"
+conflicted = "󰞇 "                       # Merge conflicts
+ahead = "⇡${count}"                     # Commits ahead of remote
+behind = "⇣${count}"                    # Commits behind remote
+diverged = "⇕"                          # Diverged from remote
+untracked = "?"                         # Untracked files
+stashed = "󰏗 "                          # Stashed changes
+modified = "!"                          # Modified files
+staged = "+"                            # Staged files
+renamed = "»"                           # Renamed files
+deleted = "✘"                           # Deleted files
+
+# ┌────────────────────────────────────────────────────────────────────────────┐
+# │ LANGUAGES - Only show when relevant files are detected                     │
+# └────────────────────────────────────────────────────────────────────────────┘
+
+[conda]
+symbol = "🐍 "
+format = "[$symbol$environment](bold #a6e3a1) "
+ignore_base = true                      # Don't show (base) environment
+
+[nodejs]
+symbol = ""
+format = "[$symbol $version](bold #a6e3a1) "
+detect_extensions = ["js", "mjs", "cjs", "ts", "tsx"]
+detect_files = ["package.json", ".node-version"]
+detect_folders = ["node_modules"]
+
+[python]
+symbol = ""
+format = "[$symbol $version( \\($virtualenv\\))](bold #f9e2af) "
+detect_extensions = ["py"]
+detect_files = ["requirements.txt", "pyproject.toml", "Pipfile"]
+
+[rust]
+symbol = ""
+format = "[$symbol $version](bold #fab387) "
+
+[golang]
+symbol = ""
+format = "[$symbol $version](bold #89dceb) "
+
+[java]
+symbol = ""
+format = "[$symbol $version](bold #f38ba8) "
+
+[docker_context]
+symbol = ""
+format = "[$symbol $context](bold #89b4fa) "
+only_with_files = true
+
+# ┌────────────────────────────────────────────────────────────────────────────┐
+# │ COMMAND DURATION - Shows how long commands take (if > 2 seconds)           │
+# └────────────────────────────────────────────────────────────────────────────┘
+[cmd_duration]
+min_time = 2000                         # Only show if command took > 2s
+format = "[󰔛 $duration]($style) "
+style = "bold #6c7086"
+show_milliseconds = false
+
+# ┌────────────────────────────────────────────────────────────────────────────┐
+# │ PACKAGE VERSION - Shows version from package.json, Cargo.toml, etc.        │
+# └────────────────────────────────────────────────────────────────────────────┘
+[package]
+symbol = "󰏗 "
+format = "[$symbol$version]($style) "
+style = "bold #cba6f7"
+display_private = false
+
+# ┌────────────────────────────────────────────────────────────────────────────┐
+# │ USERNAME & HOSTNAME - Only show in SSH sessions or as root                 │
+# └────────────────────────────────────────────────────────────────────────────┘
+[username]
+style_user = "bold #89b4fa"
+style_root = "bold #f38ba8"
+format = "[$user]($style) "
+disabled = false
+show_always = false                     # Only show in SSH or as root
+
+[hostname]
+ssh_only = true                         # Only show when connected via SSH
+format = "[@$hostname](bold #fab387) "
+disabled = false
