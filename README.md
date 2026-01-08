@@ -39,7 +39,11 @@ git clone https://github.com/YOUR_USERNAME/dotfiles ~/dotfiles
 cd ~/dotfiles
 nix run . -- switch --flake .
 
-# 4. Restart terminal or run: exec zsh
+# 4. Set Zsh as default shell
+echo "$HOME/.nix-profile/bin/zsh" | sudo tee -a /etc/shells
+chsh -s "$HOME/.nix-profile/bin/zsh"
+
+# 5. Restart terminal or run: exec zsh
 ```
 
 ## 📝 Daily Usage

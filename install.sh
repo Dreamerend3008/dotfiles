@@ -139,40 +139,21 @@ nix run . -- switch --flake .
 success "Home Manager configuration applied!"
 
 # ┌────────────────────────────────────────────────────────────────────────────┐
-# │ Step 5: Set Zsh as default shell                                            │
+# │ Done!                                                                        │
 # └────────────────────────────────────────────────────────────────────────────┘
 ZSH_PATH="$HOME/.nix-profile/bin/zsh"
 
-if [ -x "$ZSH_PATH" ]; then
-    if [ "$SHELL" != "$ZSH_PATH" ]; then
-        info "Setting Zsh as default shell..."
-        
-        # Add to /etc/shells if not present
-        if ! grep -q "$ZSH_PATH" /etc/shells 2>/dev/null; then
-            warn "Adding Zsh to /etc/shells (requires sudo)..."
-            echo "$ZSH_PATH" | sudo tee -a /etc/shells
-        fi
-        
-        info "Changing default shell to Zsh..."
-        info "Please enter your password when prompted:"
-        chsh -s "$ZSH_PATH"
-        success "Default shell changed to Zsh"
-    else
-        success "Zsh is already the default shell"
-    fi
-fi
-
-# ┌────────────────────────────────────────────────────────────────────────────┐
-# │ Done!                                                                        │
-# └────────────────────────────────────────────────────────────────────────────┘
 echo ""
 echo "╔══════════════════════════════════════════════════════════════════╗"
 echo "║                    ✅ Installation Complete!                     ║"
 echo "╠══════════════════════════════════════════════════════════════════╣"
 echo "║                                                                  ║"
-echo "║  Next steps:                                                     ║"
-echo "║    1. Close and reopen your terminal                            ║"
-echo "║    2. Or run: exec zsh                                          ║"
+echo "║  To set Zsh as your default shell, run these commands:          ║"
+echo "║                                                                  ║"
+echo "║    echo \"$ZSH_PATH\" | sudo tee -a /etc/shells"
+echo "║    chsh -s \"$ZSH_PATH\""
+echo "║                                                                  ║"
+echo "║  Then close and reopen your terminal, or run: exec zsh          ║"
 echo "║                                                                  ║"
 echo "║  Useful commands:                                                ║"
 echo "║    update    - Apply changes after editing home.nix             ║"
