@@ -75,7 +75,7 @@
     wget                    # File downloader
     unzip                   # Archive extraction
     jq                      # JSON processor
-
+    ponysay
 
   ];
 
