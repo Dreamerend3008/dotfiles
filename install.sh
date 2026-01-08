@@ -153,6 +153,8 @@ if [ -x "$ZSH_PATH" ]; then
             echo "$ZSH_PATH" | sudo tee -a /etc/shells
         fi
         
+        info "Changing default shell to Zsh..."
+        info "Please enter your password when prompted:"
         chsh -s "$ZSH_PATH"
         success "Default shell changed to Zsh"
     else
