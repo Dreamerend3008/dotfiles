@@ -1,7 +1,7 @@
 # 🏠 Harry's Dotfiles
 
 > Declarative development environment using **Nix Home Manager**.
-> One command to set up everything on any Linux machine or WSL!
+> Set up everything on any Linux machine or WSL!
 
 ## ✨ What's Included
 
@@ -17,33 +17,29 @@
 | **fzf** | Fuzzy finder |
 | + more | ripgrep, fd, bat, htop, btop... |
 
-## 🚀 Quick Install (New Machine)
+## 🚀 Installation
 
-### One-liner (after setting up the repo):
-```bash
-curl -fsSL https://raw.githubusercontent.com/YOUR_USERNAME/dotfiles/main/install.sh | bash
-```
-
-### Or step by step:
 ```bash
 # 1. Install Nix
 sh <(curl -L https://nixos.org/nix/install) --daemon
 # For WSL, use: sh <(curl -L https://nixos.org/nix/install) --no-daemon
 
-# 2. Enable Flakes
+# 2. Restart your terminal, then enable Flakes
 mkdir -p ~/.config/nix
 echo "experimental-features = nix-command flakes" >> ~/.config/nix/nix.conf
 
-# 3. Clone and apply
+# 3. Clone dotfiles
 git clone https://github.com/YOUR_USERNAME/dotfiles ~/dotfiles
 cd ~/dotfiles
-nix run . -- switch --flake .
 
-# 4. Set Zsh as default shell
+# 4. Apply configuration
+nix run . -- switch --flake . -b backup
+
+# 5. Set Zsh as default shell
 echo "$HOME/.nix-profile/bin/zsh" | sudo tee -a /etc/shells
 chsh -s "$HOME/.nix-profile/bin/zsh"
 
-# 5. Restart terminal or run: exec zsh
+# 6. Restart terminal or run: exec zsh
 ```
 
 ## 📝 Daily Usage
@@ -70,7 +66,6 @@ nix search nixpkgs <package-name>
 ~/dotfiles/
 ├── flake.nix           # Entry point - defines inputs (nixpkgs, home-manager)
 ├── home.nix            # Main config - packages, shell, programs
-├── install.sh          # One-command installer
 ├── README.md           # This file
 └── config/
     ├── nvim/           # Neovim configuration
@@ -164,13 +159,10 @@ update   # Apply the changes
 
 2. **Change git config** in `home.nix`:
    ```nix
-   userName = "Your Name";
-   userEmail = "your@email.com";
-   ```
-
-3. **Change GitHub username** in `install.sh`:
-   ```bash
-   GITHUB_USER="your-username"
+   settings = {
+     user.name = "Your Name";
+     user.email = "your@email.com";
+   };
    ```
 
 ---
