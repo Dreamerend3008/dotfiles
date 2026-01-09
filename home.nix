@@ -159,6 +159,11 @@
     # │ It goes at the END of .zshrc                                           │
     # └────────────────────────────────────────────────────────────────────────┘
     initContent = ''
+      # nix 
+      if [ -e "$HOME/.nix-profile/etc/profile.d/nix.sh" ]; then
+        . "$HOME/.nix-profile/etc/profile.d/nix.sh"
+      fi
+
       # Show system info on terminal start
       fastfetch -c ~/.config/fastfetch/config.jsonc
       
