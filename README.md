@@ -1,169 +1,275 @@
-# 🏠 Harry's Dotfiles
+# 🏠 Harry's Dotfiles - Multi-Sistema
 
-> Declarative development environment using **Nix Home Manager**.
-> Set up everything on any Linux machine or WSL!
+> Configuración declarativa que funciona en **NixOS**, **Ubuntu** y **WSL**
 
-## ✨ What's Included
+## 🎯 ¿Qué hace especial esta configuración?
 
-| Tool | Description |
-|------|-------------|
-| **zsh** | Shell with oh-my-zsh, autosuggestions, syntax highlighting |
-| **starship** | Beautiful, fast prompt |
-| **neovim** | Configured with LSP, completion, treesitter |
-| **lsd** | Modern `ls` with icons |
-| **zoxide** | Smarter `cd` command |
-| **lazygit** | Terminal UI for git |
-| **fastfetch** | System info display |
-| **fzf** | Fuzzy finder |
-| + more | ripgrep, fd, bat, htop, btop... |
+Esta configuración usa **Nix Flakes** y **Home Manager** de forma inteligente:
 
-## 🚀 Installation
+- 🖥️  **En NixOS**: Home Manager se integra con la configuración del sistema
+- 🐧 **En Ubuntu/WSL**: Home Manager funciona standalone (como siempre)
+- 📦 **Mismo código**: Compartes el 99% de la configuración entre sistemas
 
-```bash
-# 1. Install Nix
-sh <(curl -L https://nixos.org/nix/install) --daemon
-# For WSL, use: sh <(curl -L https://nixos.org/nix/install) --no-daemon
-
-# 2. Restart your terminal, then enable Flakes
-mkdir -p ~/.config/nix
-echo "experimental-features = nix-command flakes" >> ~/.config/nix/nix.conf
-
-# 3. Clone dotfiles
-git clone https://github.com/YOUR_USERNAME/dotfiles ~/dotfiles
-cd ~/dotfiles
-
-# 4. Apply configuration
-nix run . -- switch --flake . -b backup
-
-# 5. Set Zsh as default shell
-echo "$HOME/.nix-profile/bin/zsh" | sudo tee -a /etc/shells
-chsh -s "$HOME/.nix-profile/bin/zsh"
-
-# 6. Restart terminal or run: exec zsh
-```
-
-## 📝 Daily Usage
-
-### After editing `home.nix`:
-```bash
-update   # Alias for: home-manager switch --flake ~/dotfiles
-```
-
-### Quick edit config:
-```bash
-ez       # Opens home.nix in neovim
-```
-
-### Search for new packages:
-```bash
-nix search nixpkgs <package-name>
-# Or visit: https://search.nixos.org/packages
-```
-
-## 📁 Structure
+## 📂 Estructura
 
 ```
 ~/dotfiles/
-├── flake.nix           # Entry point - defines inputs (nixpkgs, home-manager)
-├── home.nix            # Main config - packages, shell, programs
-├── README.md           # This file
+├── flake.nix              # Define las configuraciones para cada sistema
+├── configuration.nix      # Configuración de sistema NixOS (solo NixOS)
+├── home.nix              # Configuración de usuario (todos los sistemas)
+├── README.md
 └── config/
-    ├── nvim/           # Neovim configuration
-    │   ├── init.lua
-    │   └── lua/
-    │       ├── options.lua
-    │       ├── keymaps.lua
-    │       ├── plugins.lua
-    │       ├── lsp.lua
-    │       ├── completion.lua
-    │       └── cp.lua
-    ├── starship.toml   # Prompt configuration
-    └── fastfetch/      # System info display
-        ├── config.jsonc
-        ├── config-minimal.jsonc
-        └── logos/
+    ├── nvim/
+    ├── starship.toml
+    └── fastfetch/
 ```
 
-## 🔧 Customization
+## 🚀 Instalación
 
-### Add a new package:
-Edit `home.nix`, find the `home.packages` section, add your package:
-```nix
-home.packages = with pkgs; [
-  # ... existing packages ...
-  your-new-package    # Add this line
-];
-```
-Then run `update`.
+### 📦 Paso 1: Instalar Nix
 
-### Add a shell alias:
-Edit `home.nix`, find `programs.zsh.shellAliases`:
-```nix
-shellAliases = {
-  # ... existing aliases ...
-  myalias = "my-command";
-};
+#### En Ubuntu o WSL:
+```bash
+sh <(curl -L https://nixos.org/nix/install) --daemon
+# Para WSL: sh <(curl -L https://nixos.org/nix/install) --no-daemon
 ```
 
-### Change git settings:
-Edit `home.nix`, find `programs.git`:
-```nix
-programs.git = {
-  userName = "Your Name";
-  userEmail = "your@email.com";
-  # ...
-};
-```
+#### En NixOS:
+Ya viene instalado! ✅
 
-## 🖥️ WSL Notes
-
-For WSL, the install script automatically uses single-user Nix installation.
-
-If using Windows Terminal, make sure you have a Nerd Font installed (like JetBrainsMono Nerd Font) for icons to display correctly.
-
-For the fastfetch logo with images, you may need to use `config-minimal.jsonc` instead (uses ASCII art):
-```nix
-# In home.nix, change:
-fastfetch -c ~/.config/fastfetch/config-minimal.jsonc
-```
-
-## 🔄 Sync Changes Between Machines
+### ⚙️  Paso 2: Habilitar Flakes
 
 ```bash
-# On machine where you made changes:
-cd ~/dotfiles
-git add .
-git commit -m "description of changes"
-git push
-
-# On other machine:
-cd ~/dotfiles
-git pull
-update   # Apply the changes
+mkdir -p ~/.config/nix
+echo "experimental-features = nix-command flakes" >> ~/.config/nix/nix.conf
 ```
 
-## 📚 Learning Resources
+**Reinicia tu terminal** después de este paso.
 
-- [Nix Pills](https://nixos.org/guides/nix-pills/) - Learn Nix language
+### 📥 Paso 3: Clonar dotfiles
+
+```bash
+git clone https://github.com/YOUR_USERNAME/dotfiles ~/dotfiles
+cd ~/dotfiles
+```
+
+### 🔧 Paso 4: Configurar según tu sistema
+
+#### ⚠️ **IMPORTANTE**: Edita estos archivos primero
+
+1. **En `flake.nix`**: Cambia `"harry"` por tu username
+2. **En `home.nix`**: Cambia `home.username` y `home.homeDirectory`
+3. **En `configuration.nix`** (solo NixOS): Cambia el hostname y usuario
+
+### 🎮 Paso 5: Aplicar configuración
+
+#### **En Ubuntu o WSL:**
+```bash
+# Primera vez
+nix run . -- switch --flake . -b backup
+
+# Setear Zsh como shell por defecto
+echo "$HOME/.nix-profile/bin/zsh" | sudo tee -a /etc/shells
+chsh -s "$HOME/.nix-profile/bin/zsh"
+
+# Reinicia terminal
+exec zsh
+```
+
+#### **En NixOS:**
+
+Primero, copia la configuración de hardware:
+```bash
+# Si tienes /etc/nixos/hardware-configuration.nix
+cp /etc/nixos/hardware-configuration.nix ~/dotfiles/
+
+# Si no existe, genera una:
+sudo nixos-generate-config --show-hardware-config > ~/dotfiles/hardware-configuration.nix
+```
+
+Luego aplica:
+```bash
+# Primera vez (todo el sistema + home)
+sudo nixos-rebuild switch --flake ~/dotfiles
+
+# Las siguientes veces usa el alias:
+update
+```
+
+**Nota**: En NixOS, Zsh ya queda como shell por defecto automáticamente.
+
+---
+
+## 📖 Uso Diario
+
+### 🔄 Actualizar configuración
+
+**El alias `update` detecta automáticamente tu sistema:**
+
+```bash
+# En cualquier sistema, solo escribe:
+update
+
+# En NixOS: hace 'sudo nixos-rebuild switch'
+# En Ubuntu/WSL: hace 'home-manager switch'
+```
+
+**O usa los comandos específicos:**
+
+```bash
+update-home      # Solo actualiza Home Manager
+update-system    # Solo actualiza el sistema NixOS (requiere sudo)
+```
+
+### ✏️  Editar configuración
+
+```bash
+ez               # Abre home.nix en Neovim
+```
+
+Después de editar:
+```bash
+update
+```
+
+### 🔍 Buscar paquetes
+
+```bash
+nix search nixpkgs <nombre-paquete>
+# O visita: https://search.nixos.org/packages
+```
+
+### ➕ Agregar nuevo paquete
+
+Edita `home.nix`:
+```nix
+home.packages = with pkgs; [
+  # ... paquetes existentes ...
+  tu-nuevo-paquete
+];
+```
+
+Luego: `update`
+
+---
+
+## 🎯 Comandos según el Sistema
+
+### En NixOS
+
+```bash
+# Actualizar TODO (sistema + home)
+sudo nixos-rebuild switch --flake ~/dotfiles
+# o simplemente:
+update
+
+# Solo actualizar Home Manager
+home-manager switch --flake ~/dotfiles
+# o:
+update-home
+
+# Garbage collection
+sudo nix-collect-garbage -d
+nix-collect-garbage -d  # Solo paquetes de usuario
+```
+
+### En Ubuntu/WSL
+
+```bash
+# Actualizar configuración
+home-manager switch --flake ~/dotfiles
+# o:
+update
+
+# Garbage collection
+nix-collect-garbage -d
+```
+
+---
+
+## 🔧 Diferencias Clave
+
+### ¿Qué va en cada archivo?
+
+| Archivo | Propósito | Sistemas |
+|---------|-----------|----------|
+| `home.nix` | Paquetes y configs de usuario | **Todos** |
+| `configuration.nix` | Sistema operativo, servicios, bootloader | **Solo NixOS** |
+| `flake.nix` | Orquesta todo | **Todos** |
+
+### ¿Qué hace cada comando?
+
+| Comando | Ubuntu/WSL | NixOS |
+|---------|------------|-------|
+| `update` | Actualiza Home Manager | Actualiza sistema + Home |
+| `update-home` | Actualiza Home Manager | Solo Home Manager |
+| `update-system` | ❌ No aplica | Solo sistema NixOS |
+
+---
+
+## 🔄 Sincronizar entre máquinas
+
+```bash
+# En la máquina donde hiciste cambios:
+cd ~/dotfiles
+git add .
+git commit -m "Added new package"
+git push
+
+# En otra máquina:
+cd ~/dotfiles
+git pull
+update
+```
+
+---
+
+## 🆘 Troubleshooting
+
+### "zsh: command not found: home-manager"
+
+```bash
+# Asegúrate de que Nix esté en tu PATH
+source ~/.nix-profile/etc/profile.d/nix.sh
+```
+
+### "Permission denied" en NixOS
+
+Usa `sudo` para comandos del sistema:
+```bash
+sudo nixos-rebuild switch --flake ~/dotfiles
+```
+
+### Los iconos no se ven en WSL
+
+Instala una Nerd Font en Windows Terminal (como JetBrainsMono Nerd Font).
+
+### Conflicto con ~/.zshrc existente
+
+Home Manager crea su propio `.zshrc`. Si tienes uno, renómbralo:
+```bash
+mv ~/.zshrc ~/.zshrc.backup
+```
+
+---
+
+## 🌟 Ventajas de esta configuración
+
+✅ **Un solo repositorio** para todos tus sistemas
+✅ **Reproducible**: Misma config en cualquier máquina
+✅ **Declarativo**: Todo está en archivos de texto
+✅ **Versionado**: Git controla todos los cambios
+✅ **Rollback fácil**: Vuelve a versiones anteriores con git
+✅ **No más scripts de instalación**: Nix hace todo
+
+---
+
+## 📚 Recursos
+
+- [Nix Pills](https://nixos.org/guides/nix-pills/)
 - [Home Manager Manual](https://nix-community.github.io/home-manager/)
-- [Home Manager Options](https://nix-community.github.io/home-manager/options.xhtml)
+- [NixOS Manual](https://nixos.org/manual/nixos/stable/)
 - [Nixpkgs Search](https://search.nixos.org/packages)
-
-## ⚠️ First Time Setup Reminders
-
-1. **Change username** in `flake.nix` and `home.nix`:
-   ```nix
-   home.username = "your-username";
-   home.homeDirectory = "/home/your-username";
-   ```
-
-2. **Change git config** in `home.nix`:
-   ```nix
-   settings = {
-     user.name = "Your Name";
-     user.email = "your@email.com";
-   };
-   ```
 
 ---
 
