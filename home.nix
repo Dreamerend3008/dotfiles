@@ -193,9 +193,9 @@
   
     programs.git = {
     enable = true;
-    userName = "Dreamerend3008";
-    userEmail = "79518618+Dreamerend3008@users.noreply.github.com";
-    extraConfig = {
+    settings = {
+      user.name = "Dreamerend3008";
+      user.email = "79518618+Dreamerend3008@users.noreply.github.com";
       init.defaultBranch = "main";
       pull.rebase = false;
       push.autoSetupRemote = true;
