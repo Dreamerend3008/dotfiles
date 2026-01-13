@@ -24,6 +24,9 @@
   # 📦 PAQUETES DE USUARIO
   # ═══════════════════════════════════════════════════════════════════════════
   home.packages = with pkgs; [
+    # programs
+    firefox
+
     # 🐚 Shell & Terminal
     zsh
     starship
@@ -42,6 +45,7 @@
     git
     lazygit
     neovim
+    tree-sitter
     gcc
     gnumake
     cmake
