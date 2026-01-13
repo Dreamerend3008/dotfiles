@@ -86,7 +86,7 @@
       
       # Config shortcuts
       ez = "nvim ~/dotfiles/home.nix";
-      hy = "cd ~/.config/hypr/";
+      hy = "cd ~/.config/hypr/configs";
 
       # Update commands (detecta automáticamente el sistema)
       update = "if [ -f /etc/nixos/configuration.nix ]; then sudo nixos-rebuild switch --flake ~/dotfiles; else home-manager switch --flake ~/dotfiles; fi";
