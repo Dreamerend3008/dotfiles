@@ -23,6 +23,13 @@ local lspconfig = require("lspconfig")
 local capabilities = require("cmp_nvim_lsp").default_capabilities()
 
 -- ┌────────────────────────────────────────────────────────────────────────────┐
+-- │ Mason Setup                                                                 │
+-- │                                                                             │
+-- │ Must set up Mason before mason-lspconfig                                   │
+-- └────────────────────────────────────────────────────────────────────────────┘
+require("mason").setup()
+
+-- ┌────────────────────────────────────────────────────────────────────────────┐
 -- │ Mason LSP Config                                                            │
 -- │                                                                             │
 -- │ ensure_installed: LSPs that will be automatically installed                │
@@ -36,27 +43,22 @@ local capabilities = require("cmp_nvim_lsp").default_capabilities()
 -- │   "bashls"       - Bash                                                    │
 -- │   "jsonls"       - JSON                                                    │
 -- └────────────────────────────────────────────────────────────────────────────┘
-require("mason-lspconfig").setup({
+local mason_lspconfig = require("mason-lspconfig")
+mason_lspconfig.setup({
   ensure_installed = { 
     "clangd",     -- C/C++
     "lua_ls",     -- Lua
     "pyright",    -- Python
   },
+  handlers = {
+    -- Default handler for all servers
+    function(server_name)
+      lspconfig[server_name].setup({
+        capabilities = capabilities,
+      })
+    end,
+  },
 })
-
--- ┌────────────────────────────────────────────────────────────────────────────┐
--- │ Configure Language Servers                                                  │
--- │                                                                             │
--- │ Each server is set up with the same capabilities.                          │
--- │ Add custom settings per-server if needed.                                  │
--- └────────────────────────────────────────────────────────────────────────────┘
-local servers = { "clangd", "lua_ls", "pyright" }
-
-for _, server in ipairs(servers) do
-  lspconfig[server].setup({
-    capabilities = capabilities,
-  })
-end
 
 -- ┌────────────────────────────────────────────────────────────────────────────┐
 -- │ LSP Keymaps                                                                 │
