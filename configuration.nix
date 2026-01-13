@@ -52,7 +52,7 @@
   };
   services.xserver.enable = true;
   services.xserver.displayManager.sddm.enable = true;
-  servies.desktopManager.plasna6.enable = true;
+  services.desktopManager.plasna6.enable = true;
 
 
 
