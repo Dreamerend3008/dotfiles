@@ -120,6 +120,7 @@ require("lazy").setup({
   -- │ Better syntax highlighting based on parsing, not regex.                 │
   -- │ Also enables smart indentation and text objects.                        │
   -- ╰─────────────────────────────────────────────────────────────────────────╯
+
 {
     "nvim-treesitter/nvim-treesitter",
     build = ":TSUpdate",
@@ -143,5 +144,5 @@ require("lazy").setup({
       })
     end,
   },
-}) 
+
 
