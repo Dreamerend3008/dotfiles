@@ -143,5 +143,5 @@ require("lazy").setup({
         indent = { enable = true },
       })
     end,
-  },
-}) 
+    },
+}
