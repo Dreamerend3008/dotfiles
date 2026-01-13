@@ -50,6 +50,13 @@
     LC_TELEPHONE = "es_CO.UTF-8";
     LC_TIME = "es_CO.UTF-8";
   };
+  services.xserver.enable = true;
+  services.xserver.displayManager.sddm.enable = true;
+  servies.desktopManager.plasna6.enable = true;
+
+
+
+
 
   # ═══════════════════════════════════════════════════════════════════════════
   # 👤 USUARIOS
