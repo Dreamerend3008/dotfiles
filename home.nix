@@ -117,7 +117,7 @@
       }
     ];
     
-    initExtra = ''
+    initContent = ''
       # Nix environment (solo necesario en standalone)
       if [ -e "$HOME/.nix-profile/etc/profile.d/nix.sh" ]; then
         . "$HOME/.nix-profile/etc/profile.d/nix.sh"
@@ -189,18 +189,16 @@
   # ═══════════════════════════════════════════════════════════════════════════
   # 🔧 GIT
   # ═══════════════════════════════════════════════════════════════════════════
-  programs.git = {
+  
+    programs.git = {
     enable = true;
-    
     userName = "Dreamerend3008";
     userEmail = "79518618+Dreamerend3008@users.noreply.github.com";
-    
     extraConfig = {
       init.defaultBranch = "main";
       pull.rebase = false;
       push.autoSetupRemote = true;
       core.pager = "less -FR";
-      
       alias = {
         st = "status";
         co = "checkout";
@@ -210,6 +208,7 @@
       };
     };
   };
+
 
   # ═══════════════════════════════════════════════════════════════════════════
   # 📁 DOTFILES
