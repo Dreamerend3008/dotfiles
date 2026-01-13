@@ -50,7 +50,8 @@
     gnumake
     cmake
     nodejs
-    python3
+    pkg-config
+    python311 # temporal while i test pyenv
     
     # 📊 Utilities
     fastfetch
@@ -59,7 +60,7 @@
     unzip
     jq
     ponysay
-  ];
+];
 
   # ═══════════════════════════════════════════════════════════════════════════
   # 🐚 ZSH CONFIGURATION
