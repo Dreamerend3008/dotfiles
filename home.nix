@@ -5,178 +5,195 @@
 # ║  Este archivo funciona en cualquier sistema!                                 ║
 # ╚══════════════════════════════════════════════════════════════════════════════╝
 
-{ config, pkgs, ... }:
+{ config, pkgs,... }:
 
 {
-  # ┌────────────────────────────────────────────────────────────────────────────┐
-  # │ USER CONFIGURATION                                                          │
-  # │                                                                             │
-  # │ ⚠️  CAMBIAR SOLO EN STANDALONE (Ubuntu/WSL)                                │
-  # │ En NixOS esto lo maneja configuration.nix                                  │
-  # └────────────────────────────────────────────────────────────────────────────┘
-  home.username = "harry";
-  home.homeDirectory = "/home/harry";
-  home.stateVersion = "24.05";
+    # ┌────────────────────────────────────────────────────────────────────────────┐
+    # │ USER CONFIGURATION                                                          │
+    # │                                                                             │
+    # │ ⚠️  CAMBIAR SOLO EN STANDALONE (Ubuntu/WSL)                                │
+    # │ En NixOS esto lo maneja configuration.nix                                  │
+    # └────────────────────────────────────────────────────────────────────────────┘
+    home.username = "harry";
+    home.homeDirectory = "/home/harry";
+    home.stateVersion = "24.05";
 
-  programs.home-manager.enable = true;
+    programs.home-manager.enable = true;
 
-  # ═══════════════════════════════════════════════════════════════════════════
-  # 📦 PAQUETES DE USUARIO
-  # ═══════════════════════════════════════════════════════════════════════════
-  home.packages = with pkgs; [
-    # programs
-    firefox
 
-    # 🐚 Shell & Terminal
-    zsh
-    starship
-    zoxide
-    fzf
-    lsd
-    bat
-    eza
-    ripgrep
-    fd
-    tree
-    htop
-    btop
 
-    # 🛠️  Development
-    git
-    lazygit
-    neovim
-    tree-sitter
-    gcc
-    gnumake
-    cmake
-    nodejs
-    pkg-config
-    python311 # temporal while i test pyenv
-    
-    # 📊 Utilities
-    fastfetch
-    curl
-    wget
-    unzip
-    jq
-    ponysay
-];
+    # ═══════════════════════════════════════════════════════════════════════════
+    # 📦 PAQUETES DE USUARIO
+    # ═══════════════════════════════════════════════════════════════════════════
+    home.packages = with pkgs; [
+        # programs
+        firefox
+
+        # 🐚 shell & terminal
+        zsh
+        starship
+        zoxide
+        fzf
+        lsd
+        bat
+        eza
+        ripgrep
+        fd
+        tree
+        htop
+        btop
+
+        # 🛠️  development
+        git
+        lazygit
+        neovim
+        tree-sitter
+        gcc
+        gnumake
+        cmake
+        nodejs
+        pkg-config
+
+        # 📊 utilities
+        fastfetch
+        curl
+        wget
+        unzip
+        jq
+        ponysay
+        zip
+        unzip
+
+        # python
+        python311 # temporal while i test pyenv
+        #python311packages.pip
+        #python311packages.virtualenv
+
+        # system libraries your packages need
+        stdenv.cc.cc.lib
+        gcc
+        zlib
+    ];
 
   # ═══════════════════════════════════════════════════════════════════════════
   # 🐚 ZSH CONFIGURATION
   # ═══════════════════════════════════════════════════════════════════════════
-  programs.zsh = {
-    enable = true;
-    
-    shellAliases = {
-      # File listing
-      ls = "lsd";
-      l = "ls -l";
-      la = "ls -a";
-      lla = "ls -la";
-      lt = "ls --tree";
-      
-      # Git
-      lg = "lazygit";
-      gs = "git status";
-      gp = "git push";
-      gl = "git pull";
-      
-      # Navigation
-      cd = "z";
-      
-      # Config shortcuts
-      ez = "nvim ~/dotfiles/home.nix";
-      hy = "cd ~/.config/hypr/configs";
+    programs.zsh = {
+        enable = true;
 
-      # Update commands (detecta automáticamente el sistema)
-      update = "if [ -f /etc/nixos/configuration.nix ]; then sudo nixos-rebuild switch --flake ~/dotfiles; else home-manager switch --flake ~/dotfiles; fi";
-      update-home = "home-manager switch --flake ~/dotfiles";
-      update-system = "sudo nixos-rebuild switch --flake ~/dotfiles";
-    };
-    
-    oh-my-zsh = {
-      enable = true;
-      plugins = [
-        "git"
-        "sudo"
-        "web-search"
-        "copypath"
-        "copyfile"
-      ];
-    };
-    
-    plugins = [
-      {
-        name = "zsh-autosuggestions";
-        src = pkgs.zsh-autosuggestions;
-        file = "share/zsh-autosuggestions/zsh-autosuggestions.zsh";
-      }
-      {
-        name = "zsh-syntax-highlighting";
-        src = pkgs.zsh-syntax-highlighting;
-        file = "share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh";
-      }
-    ];
-    
-    initContent = ''
-      # Nix environment (solo necesario en standalone)
-      if [ -e "$HOME/.nix-profile/etc/profile.d/nix.sh" ]; then
-        . "$HOME/.nix-profile/etc/profile.d/nix.sh"
-      fi
+        shellAliases = {
+          # File listing
+          ls = "lsd";
+          l = "ls -l";
+          la = "ls -a";
+          lla = "ls -la";
+          lt = "ls --tree";
+          
+          # Git
+          lg = "lazygit";
+          gs = "git status";
+          gp = "git push";
+          gl = "git pull";
+          
+          # Navigation
+          cd = "z";
+          
+          # Config shortcuts
+          ez = "nvim ~/dotfiles/home.nix";
+          hy = "cd ~/.config/hypr/configs";
 
-      # System info
-      fastfetch -c ~/.config/fastfetch/config.jsonc
-      
-      # Prompt & tools
-      eval "$(starship init zsh)"
-      eval "$(zoxide init zsh)"
-      
-      # ═══════════════════════════════════════════════════════════════
-      # Custom Functions
-      # ═══════════════════════════════════════════════════════════════
-      
-      # Compile and run C++
-      runcpp() {
-        if [ -z "$1" ]; then
-          echo "Usage: runcpp <filename.cpp>"
-          return 1
-        fi
-        local SRC="$1"
-        local OUT="''${SRC%.*}"
-        g++ -std=c++17 -Wall "$SRC" -o "$OUT" && ./"$OUT"
-      }
-      
-      # Create contest folder
-      Contest() {
-        local SRC="$HOME/cp/tmplcontest"
-        local DEST=$1
-        
-        if [ -z "$DEST" ]; then
-          echo "Usage: Contest <new_contest_name>"
-          return 1
-        fi
-        
-        if [ ! -d "$SRC" ]; then
-          echo "Template folder '$SRC' does not exist."
-          return 1
-        fi
-        
-        if [ -d "$DEST" ]; then
-          echo "Destination folder '$DEST' already exists."
-          return 1
-        fi
-        
-        cp -r "$SRC" "$DEST"
-        cd "$DEST" || { echo "Directory not found: $DEST"; return 1; }
-        echo "✅ New contest created: $DEST"
-      }
-    '';
-    
-    profileExtra = ''
-      export PATH="$HOME/.local/bin:$PATH"
-    '';
-  };
+          # Update commands (detecta automáticamente el sistema)
+          update = "if [ -f /etc/nixos/configuration.nix ]; then sudo nixos-rebuild switch --flake ~/dotfiles; else home-manager switch --flake ~/dotfiles; fi";
+          update-home = "home-manager switch --flake ~/dotfiles";
+          update-system = "sudo nixos-rebuild switch --flake ~/dotfiles";
+        };
+
+        oh-my-zsh = {
+          enable = true;
+          plugins = [
+            "git"
+            "sudo"
+            "web-search"
+            "copypath"
+            "copyfile"
+          ];
+        };
+
+        plugins = [
+          {
+            name = "zsh-autosuggestions";
+            src = pkgs.zsh-autosuggestions;
+            file = "share/zsh-autosuggestions/zsh-autosuggestions.zsh";
+          }
+          {
+            name = "zsh-syntax-highlighting";
+            src = pkgs.zsh-syntax-highlighting;
+            file = "share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh";
+          }
+        ];
+
+        initContent = ''
+          # Nix environment (solo necesario en standalone)
+          if [ -e "$HOME/.nix-profile/etc/profile.d/nix.sh" ]; then
+            . "$HOME/.nix-profile/etc/profile.d/nix.sh"
+          fi
+
+          # System info
+          fastfetch -c ~/.config/fastfetch/config.jsonc
+          
+          # Prompt & tools
+          eval "$(starship init zsh)"
+          eval "$(zoxide init zsh)"
+
+          # python
+          export LD_LIBRARY_PATH="${pkgs.stdenv.cc.cc.lib}/lib:${pkgs.zlib}/lib:$LD_LIBRARY_PATH"
+
+
+          # ═══════════════════════════════════════════════════════════════
+          # Custom Functions
+          # ═══════════════════════════════════════════════════════════════
+          
+          # Compile and run C++
+          runcpp() {
+            if [ -z "$1" ]; then
+              echo "Usage: runcpp <filename.cpp>"
+              return 1
+            fi
+            local SRC="$1"
+            local OUT="''${SRC%.*}"
+            g++ -std=c++17 -Wall "$SRC" -o "$OUT" && ./"$OUT"
+          }
+          
+          # Create contest folder
+          Contest() {
+            local SRC="$HOME/cp/tmplcontest"
+            local DEST=$1
+            
+            if [ -z "$DEST" ]; then
+              echo "Usage: Contest <new_contest_name>"
+              return 1
+            fi
+            
+            if [ ! -d "$SRC" ]; then
+              echo "Template folder '$SRC' does not exist."
+              return 1
+            fi
+            
+            if [ -d "$DEST" ]; then
+              echo "Destination folder '$DEST' already exists."
+              return 1
+            fi
+            
+            cp -r "$SRC" "$DEST"
+            cd "$DEST" || { echo "Directory not found: $DEST"; return 1; }
+            echo "✅ New contest created: $DEST"
+          }
+        '';
+
+        profileExtra = ''
+          export PATH="$HOME/.local/bin:$PATH"
+        '';
+    };
 
   # ═══════════════════════════════════════════════════════════════════════════
   # ⭐ STARSHIP
@@ -215,6 +232,11 @@
   # ═══════════════════════════════════════════════════════════════════════════
   # 📁 DOTFILES
   # ═══════════════════════════════════════════════════════════════════════════
+  xdg.configFile."kitty" = {
+    source = ./config/kitty;
+    recursive = true;
+  };
+
   xdg.configFile."nvim" = {
     source = ./config/nvim;
     recursive = true;
