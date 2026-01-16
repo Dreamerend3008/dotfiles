@@ -27,7 +27,7 @@
     # ═══════════════════════════════════════════════════════════════════════════
     home.packages = with pkgs; [
         # programs
-        firefox
+        #firefox
 
         # 🐚 shell & terminal
         zsh
