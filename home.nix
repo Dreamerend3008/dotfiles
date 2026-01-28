@@ -25,7 +25,6 @@
   # ═══════════════════════════════════════════════════════════════════════════
   home.packages = with pkgs; [
     # programs
-    firefox
 
     # 🐚 Shell & Terminal
     zsh
@@ -130,7 +129,10 @@
       # Prompt & tools
       eval "$(starship init zsh)"
       eval "$(zoxide init zsh)"
-      
+
+      # npm 
+      export PATH=~/.npm-global/bin:$PATH
+
       # ═══════════════════════════════════════════════════════════════
       # Custom Functions
       # ═══════════════════════════════════════════════════════════════
