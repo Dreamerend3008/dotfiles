@@ -20,6 +20,14 @@
 
     programs.home-manager.enable = true;
 
+<<<<<<< HEAD
+  # ═══════════════════════════════════════════════════════════════════════════
+  # 📦 PAQUETES DE USUARIO
+  # ═══════════════════════════════════════════════════════════════════════════
+  home.packages = with pkgs; [
+    # programs
+=======
+>>>>>>> 19429f0ce6687791bafe4f408c6962818aa0ff40
 
 
     # ═══════════════════════════════════════════════════════════════════════════
@@ -102,6 +110,63 @@
           ez = "nvim ~/dotfiles/home.nix";
           hy = "cd ~/.config/hypr/configs";
 
+<<<<<<< HEAD
+      # System info
+      fastfetch -c ~/.config/fastfetch/config.jsonc
+      
+      # Prompt & tools
+      eval "$(starship init zsh)"
+      eval "$(zoxide init zsh)"
+
+      # npm 
+      export PATH=~/.npm-global/bin:$PATH
+
+      # ═══════════════════════════════════════════════════════════════
+      # Custom Functions
+      # ═══════════════════════════════════════════════════════════════
+      
+      # Compile and run C++
+      runcpp() {
+        if [ -z "$1" ]; then
+          echo "Usage: runcpp <filename.cpp>"
+          return 1
+        fi
+        local SRC="$1"
+        local OUT="''${SRC%.*}"
+        g++ -std=c++17 -Wall "$SRC" -o "$OUT" && ./"$OUT"
+      }
+      
+      # Create contest folder
+      Contest() {
+        local SRC="$HOME/cp/tmplcontest"
+        local DEST=$1
+        
+        if [ -z "$DEST" ]; then
+          echo "Usage: Contest <new_contest_name>"
+          return 1
+        fi
+        
+        if [ ! -d "$SRC" ]; then
+          echo "Template folder '$SRC' does not exist."
+          return 1
+        fi
+        
+        if [ -d "$DEST" ]; then
+          echo "Destination folder '$DEST' already exists."
+          return 1
+        fi
+        
+        cp -r "$SRC" "$DEST"
+        cd "$DEST" || { echo "Directory not found: $DEST"; return 1; }
+        echo "✅ New contest created: $DEST"
+      }
+    '';
+    
+    profileExtra = ''
+      export PATH="$HOME/.local/bin:$PATH"
+    '';
+  };
+=======
           # Update commands (detecta automáticamente el sistema)
           update = "if [ -f /etc/nixos/configuration.nix ]; then sudo nixos-rebuild switch --flake ~/dotfiles; else home-manager switch --flake ~/dotfiles; fi";
           update-home = "home-manager switch --flake ~/dotfiles";
@@ -194,6 +259,7 @@
           export PATH="$HOME/.local/bin:$PATH"
         '';
     };
+>>>>>>> 19429f0ce6687791bafe4f408c6962818aa0ff40
 
   # ═══════════════════════════════════════════════════════════════════════════
   # ⭐ STARSHIP
