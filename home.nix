@@ -100,7 +100,7 @@
           # Config shortcuts
           ez = "nvim ~/dotfiles/home.nix";
           hy = "cd ~/.config/hypr/configs";
-          uni = "cd /mnt/c/juanb"
+          uni = "cd /mnt/c/juanb";
          # Update commands (detecta automáticamente el sistema)
           update = "if [ -f /etc/nixos/configuration.nix ]; then sudo nixos-rebuild switch --flake ~/dotfiles; else home-manager switch --flake ~/dotfiles; fi";
           update-home = "home-manager switch --flake ~/dotfiles";
