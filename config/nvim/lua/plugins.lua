@@ -108,10 +108,14 @@ require("lazy").setup({
   -- ╰─────────────────────────────────────────────────────────────────────────╯
   
   -- Auto-pairs - automatically close brackets, quotes, etc.
-  -- Disabled: competitive programming typing usually prefers manual control.
   {
     "windwp/nvim-autopairs",
-    enabled = false,
+    event = "InsertEnter",
+    config = function()
+      require("nvim-autopairs").setup({
+        check_ts = true,  -- use treesitter to check for pairs
+      })
+    end,
   },
 
   -- ╭─────────────────────────────────────────────────────────────────────────╮
@@ -155,78 +159,23 @@ require("lazy").setup({
   -- ╰─────────────────────────────────────────────────────────────────────────╯
   {
     "nvim-treesitter/nvim-treesitter",
+    branch = "master",
     build = ":TSUpdate",
     config = function()
-      local ok, ts = pcall(require, "nvim-treesitter")
+      local ok, configs = pcall(require, "nvim-treesitter.configs")
       if not ok then
         vim.notify("nvim-treesitter not available (run :Lazy sync and restart)", vim.log.levels.WARN)
         return
       end
 
-      -- Configure install location (defaults are fine; calling setup is optional).
-      ts.setup({})
-
-      local wanted_parsers = {
-        "lua",
-        "vim",
-        "vimdoc",
-        "query",
-        "nix",
-        "bash",
-        "c",
-        "cpp",
-        "python",
-        "javascript",
-        "typescript",
-        "json",
-        "markdown",
-      }
-
-      -- Rough equivalent of the old `ensure_installed` behavior.
-      vim.api.nvim_create_autocmd("VimEnter", {
-        once = true,
-        callback = function()
-          local installed = {}
-          for _, lang in ipairs(ts.get_installed()) do
-            installed[lang] = true
-          end
-
-          local missing = {}
-          for _, lang in ipairs(wanted_parsers) do
-            if not installed[lang] then
-              table.insert(missing, lang)
-            end
-          end
-
-          if #missing > 0 then
-            ts.install(missing)
-          end
-        end,
-      })
-
-      -- Enable Treesitter features (highlighting/folds/indent) per filetype.
-      vim.api.nvim_create_autocmd("FileType", {
-        pattern = {
-          "lua",
-          "vim",
-          "vimdoc",
-          "query",
-          "nix",
-          "sh", -- uses the "bash" parser
-          "c",
-          "cpp",
-          "python",
-          "javascript",
-          "typescript",
-          "json",
-          "markdown",
+      configs.setup({
+        ensure_installed = {
+          "lua", "vim", "vimdoc", "query", "nix", "bash",
+          "c", "cpp", "python", "javascript", "typescript", "json", "markdown",
         },
-        callback = function()
-          pcall(vim.treesitter.start)
-          vim.wo.foldexpr = "v:lua.vim.treesitter.foldexpr()"
-          vim.wo.foldmethod = "expr"
-          vim.bo.indentexpr = "v:lua.require'nvim-treesitter'.indentexpr()"
-        end,
+        auto_install = false,
+        highlight = { enable = true },
+        indent = { enable = true },
       })
     end,
   },

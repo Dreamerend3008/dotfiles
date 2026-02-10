@@ -63,8 +63,8 @@ keymap("v", ">", ">gv", { desc = "Indent right" })
 -- ┌────────────────────────────────────────────────────────────────────────────┐
 -- │ Diagnostic Keymaps (for LSP errors/warnings)                                │
 -- └────────────────────────────────────────────────────────────────────────────┘
-keymap("n", "[d", vim.diagnostic.goto_prev, { desc = "Previous diagnostic" })
-keymap("n", "]d", vim.diagnostic.goto_next, { desc = "Next diagnostic" })
+keymap("n", "[d", function() vim.diagnostic.jump({ count = -1 }) end, { desc = "Previous diagnostic" })
+keymap("n", "]d", function() vim.diagnostic.jump({ count = 1 }) end, { desc = "Next diagnostic" })
 keymap("n", "<leader>e", vim.diagnostic.open_float, { desc = "Show diagnostic" })
 
 -- ┌────────────────────────────────────────────────────────────────────────────┐

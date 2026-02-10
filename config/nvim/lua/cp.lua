@@ -8,12 +8,7 @@
 -- ║    <Space>r  - Open runner (2nd press runs with pasted input)               ║
 -- ║    <Space>R  - Compile/run using input.txt and diff vs expected.txt         ║
 -- ║                                                                               ║
--- ║  Expected folder structure (for <Space>t / <Space>R):                        ║
--- ║    problem/                                                                  ║
--- ║      solution.cpp    ← Your code                                             ║
--- ║      input.txt       ← Test input                                            ║
--- ║      expected.txt    ← Expected output                                       ║
--- ║      output.txt      ← Generated output (auto-created)                       ║
+-- ║  Supported: C, C++, Python, Java, JavaScript, Go, Rust                       ║
 -- ╚══════════════════════════════════════════════════════════════════════════════╝
 
 -- ┌────────────────────────────────────────────────────────────────────────────┐
@@ -25,175 +20,222 @@ local function ensure_file(path)
   end
 end
 
+local function find_executable(candidates)
+  for _, cmd in ipairs(candidates) do
+    if vim.fn.executable(cmd) == 1 then
+      return cmd
+    end
+  end
+  return nil
+end
+
+local function se(x)
+  return vim.fn.shellescape(x)
+end
+
+-- ┌────────────────────────────────────────────────────────────────────────────┐
+-- │ Language support - add new languages here                                    │
+-- └────────────────────────────────────────────────────────────────────────────┘
+local function get_cmd_for_file(file, ext, bin)
+  -- C++
+  if ext == "cpp" or ext == "cc" or ext == "cxx" or ext == "C" then
+    local cxx = find_executable({ "g++", "clang++", "c++" })
+    if not cxx then return nil, "No C++ compiler found (g++, clang++)" end
+    return {
+      compile = string.format("%s -std=c++17 -O2 -Wall %s -o %s", cxx, se(file), se(bin)),
+      run = bin,
+    }
+  end
+
+  -- C
+  if ext == "c" then
+    local cc = find_executable({ "gcc", "clang", "cc" })
+    if not cc then return nil, "No C compiler found (gcc, clang)" end
+    return {
+      compile = string.format("%s -std=c11 -O2 -Wall %s -o %s", cc, se(file), se(bin)),
+      run = bin,
+    }
+  end
+
+  -- Python
+  if ext == "py" then
+    local py = find_executable({ "python3", "python" })
+    if not py then return nil, "No Python interpreter found" end
+    return { run = string.format("%s %s", py, se(file)) }
+  end
+
+  -- Java
+  if ext == "java" then
+    local javac = find_executable({ "javac" })
+    local java = find_executable({ "java" })
+    if not javac or not java then return nil, "No Java compiler/runtime found" end
+    local classname = vim.fn.fnamemodify(file, ":t:r")
+    local dir = vim.fn.fnamemodify(file, ":h")
+    return {
+      compile = string.format("cd %s && %s %s", se(dir), javac, se(file)),
+      run = string.format("cd %s && %s %s", se(dir), java, classname),
+    }
+  end
+
+  -- JavaScript/Node.js
+  if ext == "js" or ext == "mjs" then
+    local node = find_executable({ "node", "nodejs" })
+    if not node then return nil, "No Node.js runtime found" end
+    return { run = string.format("%s %s", node, se(file)) }
+  end
+
+  -- Go
+  if ext == "go" then
+    local go = find_executable({ "go" })
+    if not go then return nil, "No Go compiler found" end
+    return { run = string.format("%s run %s", go, se(file)) }
+  end
+
+  -- Rust
+  if ext == "rs" then
+    local rustc = find_executable({ "rustc" })
+    if not rustc then return nil, "No Rust compiler found" end
+    return {
+      compile = string.format("%s -O %s -o %s", rustc, se(file), se(bin)),
+      run = bin,
+    }
+  end
+
+  return nil, "Unsupported file type: " .. ext
+end
 
 -- ┌────────────────────────────────────────────────────────────────────────────┐
 -- │ <Space>t → Open test files                                                  │
--- │                                                                             │
--- │ Opens input.txt and expected.txt in splits to the right.                   │
--- │ Creates the files if they don't exist.                                     │
--- │                                                                             │
--- │ Layout after pressing <Space>t:                                            │
--- │ ┌─────────────────┬──────────────┐                                         │
--- │ │                 │  input.txt   │                                         │
--- │ │  solution.cpp   ├──────────────┤                                         │
--- │ │                 │ expected.txt │                                         │
--- │ └─────────────────┴──────────────┘                                         │
 -- └────────────────────────────────────────────────────────────────────────────┘
 vim.keymap.set("n", "<leader>t", function()
-  local cwd      = vim.fn.getcwd()
-  local input    = cwd .. "/input.txt"
+  local cwd = vim.fn.getcwd()
+  local input = cwd .. "/input.txt"
   local expected = cwd .. "/expected.txt"
 
-  -- Create files if they don't exist
   ensure_file(input)
   ensure_file(expected)
 
-  -- Open input.txt in a vertical split (right side)
   vim.cmd("vsplit " .. vim.fn.fnameescape(input))
-  vim.cmd("vertical resize 30")       -- Set width
-  vim.cmd("setlocal winfixwidth")     -- Lock width
-  
-  -- Open expected.txt below input.txt
+  vim.cmd("vertical resize 30")
+  vim.cmd("setlocal winfixwidth")
   vim.cmd("split " .. vim.fn.fnameescape(expected))
-  
-  -- Return focus to main window (left)
   vim.cmd("wincmd h")
 end, { desc = "Open test files (input + expected)" })
 
 -- ┌────────────────────────────────────────────────────────────────────────────┐
 -- │ <Space>r → CP runner (paste input → get output)                              │
--- │                                                                             │
--- │ First press: opens a right-side runner with two scratch buffers:            │
--- │   [CP Input]  (paste stdin here)                                            │
--- │   [CP Output] (stdout/stderr shown here)                                    │
--- │ Second press: compiles (if needed) and runs using [CP Input] as stdin.      │
--- │                                                                             │
--- │ Works on Ubuntu + WSL (uses standard shell commands).                       │
 -- └────────────────────────────────────────────────────────────────────────────┘
+local cp_input_buf = nil
+local cp_output_buf = nil
+
 local function find_win_for_buf(buf)
+  if not buf then return nil end
   for _, win in ipairs(vim.api.nvim_tabpage_list_wins(0)) do
     if vim.api.nvim_win_get_buf(win) == buf then
       return win
     end
   end
+  return nil
 end
 
-local function runner_buf(name)
-  local key = name == "input" and "cp_input_buf" or "cp_output_buf"
-  local buf = vim.t[key]
+local function get_or_create_buf(name, modifiable)
+  local buf = (name == "input") and cp_input_buf or cp_output_buf
 
   if not buf or not vim.api.nvim_buf_is_valid(buf) then
     buf = vim.api.nvim_create_buf(false, true)
-    vim.t[key] = buf
-
-    vim.api.nvim_buf_set_name(buf, name == "input" and "[CP Input]" or "[CP Output]")
-    vim.bo[buf].buftype = "nofile"
-    vim.bo[buf].bufhidden = "wipe"
-    vim.bo[buf].swapfile = false
-    vim.bo[buf].filetype = "text"
-    if name ~= "input" then
-      vim.bo[buf].modifiable = false
+    if name == "input" then
+      cp_input_buf = buf
+    else
+      cp_output_buf = buf
     end
+
+    pcall(vim.api.nvim_buf_set_name, buf, name == "input" and "[CP Input]" or "[CP Output]")
+    vim.bo[buf].buftype = "nofile"
+    vim.bo[buf].bufhidden = "hide"
+    vim.bo[buf].swapfile = false
+    vim.bo[buf].modifiable = modifiable
   end
 
   return buf
 end
 
 local function open_runner()
-  local input_buf = runner_buf("input")
-  local output_buf = runner_buf("output")
+  local input_buf = get_or_create_buf("input", true)
+  local output_buf = get_or_create_buf("output", false)
 
   local input_win = find_win_for_buf(input_buf)
   local output_win = find_win_for_buf(output_buf)
 
   if input_win and output_win then
-    return true
+    return true -- already open
   end
 
-  local main_win = vim.api.nvim_get_current_win()
   vim.cmd("vsplit")
   vim.cmd("vertical resize 44")
   vim.api.nvim_win_set_buf(0, input_buf)
+  vim.bo[input_buf].modifiable = true
 
   vim.cmd("split")
   vim.cmd("resize 12")
   vim.api.nvim_win_set_buf(0, output_buf)
 
-  vim.api.nvim_set_current_win(find_win_for_buf(input_buf) or main_win)
+  local iw = find_win_for_buf(input_buf)
+  if iw then vim.api.nvim_set_current_win(iw) end
   return false
 end
 
-local function get_cmd_for_current_file()
-  local file = vim.fn.expand("%:p")
-  local ext = vim.fn.expand("%:e")
-
-  local cache_dir = vim.fn.stdpath("cache") .. "/cp"
-  vim.fn.mkdir(cache_dir, "p")
-
-  local base = vim.fn.fnamemodify(file, ":t:r")
-  local bin = cache_dir .. "/" .. base .. ".out"
-
-  local function se(x)
-    return vim.fn.shellescape(x)
-  end
-
-  if ext == "cpp" or ext == "cc" or ext == "cxx" then
-    local cxx = vim.fn.executable("g++") == 1 and "g++" or "clang++"
-    local compile = string.format("%s -std=gnu++17 -O2 %s -o %s", cxx, se(file), se(bin))
-    return { compile = compile, run = se(bin) }
-  end
-
-  if ext == "c" then
-    local cc = vim.fn.executable("gcc") == 1 and "gcc" or "clang"
-    local compile = string.format("%s -O2 %s -o %s", cc, se(file), se(bin))
-    return { compile = compile, run = se(bin) }
-  end
-
-  if ext == "py" then
-    local py = vim.fn.executable("python3") == 1 and "python3" or "python"
-    return { run = string.format("%s %s", py, se(file)) }
-  end
-
-  return nil
-end
-
 local function runner_run()
-  if vim.bo.modified then
-    vim.cmd("write")
-  end
-
-  local input_buf = runner_buf("input")
-  local output_buf = runner_buf("output")
-
-  local input = table.concat(vim.api.nvim_buf_get_lines(input_buf, 0, -1, false), "\n")
-  if input ~= "" then
-    input = input .. "\n"
-  end
-
-  local cmd = get_cmd_for_current_file()
-  if not cmd then
-    vim.notify("CP runner: unsupported file type", vim.log.levels.ERROR)
+  local file = vim.fn.expand("%:p")
+  if file == "" then
+    vim.notify("CP: No file open", vim.log.levels.ERROR)
     return
   end
 
+  if vim.bo.modified then
+    vim.cmd("silent write")
+  end
+
+  local ext = vim.fn.expand("%:e"):lower()
+  local cache_dir = vim.fn.stdpath("cache") .. "/cp"
+  vim.fn.mkdir(cache_dir, "p")
+  local base = vim.fn.fnamemodify(file, ":t:r")
+  local bin = cache_dir .. "/" .. base
+
+  local cmd, err = get_cmd_for_file(file, ext, bin)
+  if not cmd then
+    vim.notify("CP: " .. (err or "Unknown error"), vim.log.levels.ERROR)
+    return
+  end
+
+  local input_buf = get_or_create_buf("input", true)
+  local output_buf = get_or_create_buf("output", false)
+
+  local input_lines = vim.api.nvim_buf_get_lines(input_buf, 0, -1, false)
+  local input = table.concat(input_lines, "\n")
+  if input ~= "" then input = input .. "\n" end
+
   local out = ""
 
+  -- Compile if needed
   if cmd.compile then
     vim.notify("Compiling...", vim.log.levels.INFO)
     out = vim.fn.system(cmd.compile .. " 2>&1")
     if vim.v.shell_error ~= 0 then
-      -- show compile output in the runner
       vim.bo[output_buf].modifiable = true
-      vim.api.nvim_buf_set_lines(output_buf, 0, -1, false, vim.split(out, "\n", { plain = true }))
+      vim.api.nvim_buf_set_lines(output_buf, 0, -1, false, vim.split("COMPILE ERROR:\n" .. out, "\n"))
       vim.bo[output_buf].modifiable = false
+      vim.notify("Compilation failed!", vim.log.levels.ERROR)
       return
     end
   end
 
-  out = vim.fn.system(cmd.run .. " 2>&1", input)
+  -- Run
+  vim.notify("Running...", vim.log.levels.INFO)
+  local run_cmd = cmd.run
+  out = vim.fn.system(run_cmd, input)
 
   vim.bo[output_buf].modifiable = true
-  vim.api.nvim_buf_set_lines(output_buf, 0, -1, false, vim.split(out, "\n", { plain = true }))
+  vim.api.nvim_buf_set_lines(output_buf, 0, -1, false, vim.split(out, "\n"))
   vim.bo[output_buf].modifiable = false
 end
 
@@ -205,39 +247,54 @@ vim.keymap.set("n", "<leader>r", function()
 end, { desc = "CP runner (open / run)" })
 
 -- ┌────────────────────────────────────────────────────────────────────────────┐
--- │ <Space>R → Compile, run, and diff (original workflow)                        │
+-- │ <Space>R → Compile, run, and diff                                            │
 -- └────────────────────────────────────────────────────────────────────────────┘
 vim.keymap.set("n", "<leader>R", function()
-  -- Save file if modified
-  if vim.bo.modified then
-    vim.cmd("write")
+  local file = vim.fn.expand("%:p")
+  if file == "" then
+    vim.notify("CP: No file open", vim.log.levels.ERROR)
+    return
   end
 
-  local cwd      = vim.fn.getcwd()
-  local file     = vim.fn.expand("%:p")          -- Full path of current file
-  local bin      = cwd .. "/program.out"         -- Compiled binary
-  local input    = cwd .. "/input.txt"
+  if vim.bo.modified then
+    vim.cmd("silent write")
+  end
+
+  local cwd = vim.fn.getcwd()
+  local ext = vim.fn.expand("%:e"):lower()
+  local bin = cwd .. "/program.out"
+  local input = cwd .. "/input.txt"
   local expected = cwd .. "/expected.txt"
-  local output   = cwd .. "/output.txt"
+  local output = cwd .. "/output.txt"
 
   ensure_file(input)
   ensure_file(expected)
 
-  local compile_cmd = string.format("g++ -std=gnu++17 -O2 %s -o %s", vim.fn.shellescape(file), vim.fn.shellescape(bin))
-  vim.notify("Compiling " .. file .. "...", vim.log.levels.INFO)
-  vim.fn.system(compile_cmd .. " 2>&1")
-
-  if vim.v.shell_error ~= 0 then
-    vim.notify("Compilation failed!", vim.log.levels.ERROR)
+  local cmd, err = get_cmd_for_file(file, ext, bin)
+  if not cmd then
+    vim.notify("CP: " .. (err or "Unknown error"), vim.log.levels.ERROR)
     return
   end
 
-  local run_cmd = string.format("%s < %s > %s", vim.fn.shellescape(bin), vim.fn.shellescape(input), vim.fn.shellescape(output))
-  vim.fn.system(run_cmd .. " 2>&1")
+  -- Compile if needed
+  if cmd.compile then
+    vim.notify("Compiling...", vim.log.levels.INFO)
+    local compile_out = vim.fn.system(cmd.compile .. " 2>&1")
+    if vim.v.shell_error ~= 0 then
+      vim.notify("Compilation failed!\n" .. compile_out, vim.log.levels.ERROR)
+      return
+    end
+  end
 
+  -- Run with input file
+  vim.notify("Running...", vim.log.levels.INFO)
+  local run_cmd = string.format("%s < %s > %s 2>&1", se(cmd.run), se(input), se(output))
+  vim.fn.system(run_cmd)
+
+  -- Open diff view
   vim.cmd("vsplit " .. vim.fn.fnameescape(expected))
   vim.cmd("vertical resize 30")
   vim.cmd("setlocal winfixwidth")
   vim.cmd("vert diffsplit " .. vim.fn.fnameescape(output))
   vim.cmd("wincmd h")
-end, { desc = "Compile & run current file, diff output vs expected" })
+end, { desc = "Compile & run, diff output vs expected" })
