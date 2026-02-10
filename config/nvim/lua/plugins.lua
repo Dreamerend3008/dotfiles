@@ -108,10 +108,10 @@ require("lazy").setup({
   -- ╰─────────────────────────────────────────────────────────────────────────╯
   
   -- Auto-pairs - automatically close brackets, quotes, etc.
-  { 
-    "windwp/nvim-autopairs", 
-    event = "InsertEnter",  -- Only load when entering insert mode
-    config = true 
+  -- Disabled: competitive programming typing usually prefers manual control.
+  {
+    "windwp/nvim-autopairs",
+    enabled = false,
   },
 
   -- ╭─────────────────────────────────────────────────────────────────────────╮

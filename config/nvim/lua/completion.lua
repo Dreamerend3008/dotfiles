@@ -12,7 +12,7 @@
 
 local cmp = require("cmp")
 local luasnip = require("luasnip")
-local cmp_autopairs = require("nvim-autopairs.completion.cmp")
+local ok_autopairs, cmp_autopairs = pcall(require, "nvim-autopairs.completion.cmp")
 
 -- ┌────────────────────────────────────────────────────────────────────────────┐
 -- │ Main CMP Setup                                                              │
@@ -93,4 +93,6 @@ cmp.setup({
 -- │ Automatically add closing bracket after completing a function.             │
 -- │ Example: typing "print" and selecting it → "print()"                       │
 -- └────────────────────────────────────────────────────────────────────────────┘
-cmp.event:on("confirm_done", cmp_autopairs.on_confirm_done())
+if ok_autopairs then
+  cmp.event:on("confirm_done", cmp_autopairs.on_confirm_done())
+end
