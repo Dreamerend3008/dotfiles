@@ -1,0 +1,9 @@
+CompileFlags:
+  # Use g++ as the driver so clangd picks up libstdc++ headers (bits/stdc++.h, etc.).
+  # (Neovim also passes --query-driver to allow executing g++ for include extraction.)
+  Compiler: g++
+  Add:
+    - -std=gnu++17
+    - -O2
+    - -Wall
+    - -Wextra

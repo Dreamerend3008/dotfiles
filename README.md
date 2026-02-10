@@ -98,6 +98,45 @@ update
 
 **Nota**: En NixOS, Zsh ya queda como shell por defecto automáticamente.
 
+### 🧠 Neovim: requisitos (externos a Nix)
+
+Los binarios que usa `config/nvim` (LSP/formatters/compilador) se manejan **a nivel sistema** (apt/pacman/dnf/etc.) o con herramientas como mise/asdf.
+
+Mínimo para C++ (fix de `iostream` y `<bits/stdc++.h>`):
+- `g++` (headers de libstdc++)
+- `clangd`
+
+Verifica que Neovim los ve en `PATH`:
+```bash
+command -v g++
+command -v clangd
+```
+(En Neovim: `:echo exepath('g++')` y `:echo exepath('clangd')`)
+
+Ejemplo en Ubuntu/WSL:
+```bash
+sudo apt update
+sudo apt install -y g++ clangd clang-format
+```
+
+#### Usar estos dotfiles **sin Nix** (symlinks)
+Si Nix te está dando problemas y quieres manejar Neovim “system-wise”, puedes linkear los configs:
+```bash
+mkdir -p ~/.config
+ln -snf ~/dotfiles/config/nvim ~/.config/nvim
+ln -snf ~/dotfiles/config/clangd ~/.config/clangd
+```
+Luego en Neovim:
+- `:Lazy sync`
+- reinicia `nvim`
+
+#### Usar con Nix / Home Manager
+Luego aplica los dotfiles:
+```bash
+cd ~/dotfiles
+update   # o: nix run . -- switch --flake . -b backup
+```
+
 ---
 
 ## 📖 Uso Diario

@@ -115,23 +115,105 @@ require("lazy").setup({
   },
 
   -- ╭─────────────────────────────────────────────────────────────────────────╮
+  -- │ 🧭 NAVIGATION / UI                                                        │
+  -- ╰─────────────────────────────────────────────────────────────────────────╯
+  { "nvim-tree/nvim-web-devicons", lazy = true },
+  { "folke/which-key.nvim", event = "VeryLazy", config = true },
+  {
+    "nvim-lualine/lualine.nvim",
+    dependencies = { "nvim-tree/nvim-web-devicons" },
+    config = true,
+  },
+  {
+    "nvim-telescope/telescope.nvim",
+    cmd = "Telescope",
+    dependencies = { "nvim-lua/plenary.nvim" },
+    config = true,
+  },
+  {
+    "stevearc/oil.nvim",
+    cmd = "Oil",
+    dependencies = { "nvim-tree/nvim-web-devicons" },
+    config = true,
+  },
+
+  -- ╭─────────────────────────────────────────────────────────────────────────╮
+  -- │  GIT                                                                     │
+  -- ╰─────────────────────────────────────────────────────────────────────────╯
+  { "lewis6991/gitsigns.nvim", event = { "BufReadPre", "BufNewFile" }, config = true },
+
+  -- ╭─────────────────────────────────────────────────────────────────────────╮
+  -- │  TERMINAL                                                                │
+  -- ╰─────────────────────────────────────────────────────────────────────────╯
+  { "akinsho/toggleterm.nvim", version = "*", cmd = { "ToggleTerm", "TermExec" }, config = true },
+
+  -- ╭─────────────────────────────────────────────────────────────────────────╮
   -- │ 🌳 TREESITTER                                                           │
   -- │                                                                          │
   -- │ Better syntax highlighting based on parsing, not regex.                 │
   -- │ Also enables smart indentation and text objects.                        │
   -- ╰─────────────────────────────────────────────────────────────────────────╯
-
-{
+  {
     "nvim-treesitter/nvim-treesitter",
     build = ":TSUpdate",
     config = function()
-      require("nvim-treesitter").setup({
-        ensure_installed = { 
-          "lua", 
-          "vim", 
-          "vimdoc", 
-          "query", 
-          "c", 
+      local ok, ts = pcall(require, "nvim-treesitter")
+      if not ok then
+        vim.notify("nvim-treesitter not available (run :Lazy sync and restart)", vim.log.levels.WARN)
+        return
+      end
+
+      -- Configure install location (defaults are fine; calling setup is optional).
+      ts.setup({})
+
+      local wanted_parsers = {
+        "lua",
+        "vim",
+        "vimdoc",
+        "query",
+        "nix",
+        "bash",
+        "c",
+        "cpp",
+        "python",
+        "javascript",
+        "typescript",
+        "json",
+        "markdown",
+      }
+
+      -- Rough equivalent of the old `ensure_installed` behavior.
+      vim.api.nvim_create_autocmd("VimEnter", {
+        once = true,
+        callback = function()
+          local installed = {}
+          for _, lang in ipairs(ts.get_installed()) do
+            installed[lang] = true
+          end
+
+          local missing = {}
+          for _, lang in ipairs(wanted_parsers) do
+            if not installed[lang] then
+              table.insert(missing, lang)
+            end
+          end
+
+          if #missing > 0 then
+            ts.install(missing)
+          end
+        end,
+      })
+
+      -- Enable Treesitter features (highlighting/folds/indent) per filetype.
+      vim.api.nvim_create_autocmd("FileType", {
+        pattern = {
+          "lua",
+          "vim",
+          "vimdoc",
+          "query",
+          "nix",
+          "sh", -- uses the "bash" parser
+          "c",
           "cpp",
           "python",
           "javascript",
@@ -139,9 +221,13 @@ require("lazy").setup({
           "json",
           "markdown",
         },
-        highlight = { enable = true },
-        indent = { enable = true },
+        callback = function()
+          pcall(vim.treesitter.start)
+          vim.wo.foldexpr = "v:lua.vim.treesitter.foldexpr()"
+          vim.wo.foldmethod = "expr"
+          vim.bo.indentexpr = "v:lua.require'nvim-treesitter'.indentexpr()"
+        end,
       })
     end,
-    },
+  },
 })

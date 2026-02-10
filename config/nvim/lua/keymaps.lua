@@ -66,3 +66,14 @@ keymap("v", ">", ">gv", { desc = "Indent right" })
 keymap("n", "[d", vim.diagnostic.goto_prev, { desc = "Previous diagnostic" })
 keymap("n", "]d", vim.diagnostic.goto_next, { desc = "Next diagnostic" })
 keymap("n", "<leader>e", vim.diagnostic.open_float, { desc = "Show diagnostic" })
+
+-- ┌────────────────────────────────────────────────────────────────────────────┐
+-- │ IDE-like Navigation                                                         │
+-- └────────────────────────────────────────────────────────────────────────────┘
+keymap("n", "<leader>ff", "<cmd>Telescope find_files<CR>", { desc = "Find files" })
+keymap("n", "<leader>fg", "<cmd>Telescope live_grep<CR>", { desc = "Live grep" })
+keymap("n", "<leader>fb", "<cmd>Telescope buffers<CR>", { desc = "Find buffers" })
+keymap("n", "<leader>fh", "<cmd>Telescope help_tags<CR>", { desc = "Help tags" })
+
+keymap("n", "<leader>o", "<cmd>Oil<CR>", { desc = "File explorer" })
+keymap("n", "<leader>tt", "<cmd>ToggleTerm<CR>", { desc = "Toggle terminal" })

@@ -64,3 +64,23 @@ vim.opt.timeoutlen = 300        -- Faster key sequence completion
 -- └────────────────────────────────────────────────────────────────────────────┘
 vim.cmd("highlight Pmenu guibg=NONE ctermbg=NONE")
 vim.cmd("highlight PmenuSel guibg=Grey guifg=Black")
+
+-- ┌────────────────────────────────────────────────────────────────────────────┐
+-- │ Filetype fixes (helps when C++ isn't detected)                               │
+-- └────────────────────────────────────────────────────────────────────────────┘
+vim.filetype.add({
+  extension = {
+    cc = "cpp",
+    cxx = "cpp",
+    hpp = "cpp",
+    hxx = "cpp",
+    hh = "cpp",
+    ipp = "cpp",
+    tpp = "cpp",
+    C = "cpp",
+    CPP = "cpp",
+    CXX = "cpp",
+    HPP = "cpp",
+    HXX = "cpp",
+  },
+})

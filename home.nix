@@ -5,7 +5,7 @@
 # ║  Este archivo funciona en cualquier sistema!                                 ║
 # ╚══════════════════════════════════════════════════════════════════════════════╝
 
-{ config, pkgs,... }:
+{ config, pkgs,lib,... }:
 
 {
     # ┌────────────────────────────────────────────────────────────────────────────┐
@@ -25,9 +25,6 @@
     # 📦 PAQUETES DE USUARIO
     # ═══════════════════════════════════════════════════════════════════════════
     home.packages = with pkgs; [
-        # programs
-        #firefox
-
         # 🐚 shell & terminal
         zsh
         starship
@@ -45,13 +42,14 @@
         # 🛠️  development
         git
         lazygit
-        neovim
         tree-sitter
-        gcc
         gnumake
         cmake
         nodejs
         pkg-config
+
+        # NOTE: Neovim tooling (clangd, formatters, pyright, etc.) is installed externally
+        # (system package manager / mise / asdf / etc.), not via Nix.
 
         # 📊 utilities
         fastfetch
@@ -70,8 +68,8 @@
 
         # system libraries your packages need
         stdenv.cc.cc.lib
-        gcc
         zlib
+
     ];
 
   # ═══════════════════════════════════════════════════════════════════════════
@@ -132,7 +130,9 @@
         ];
 
         initContent = ''
-          # Nix environment (solo necesario en standalone)
+        export PATH="$PATH:/snap/bin"
+	export PATH="$HOME/.npm-global/bin:$PATH"
+        # Nix environment (solo necesario en standalone)
           if [ -e "$HOME/.nix-profile/etc/profile.d/nix.sh" ]; then
             . "$HOME/.nix-profile/etc/profile.d/nix.sh"
           fi
@@ -241,6 +241,9 @@
     recursive = true;
   };
 
+  # Global clangd configuration (applies to all projects, avoids per-folder .clangd files)
+  xdg.configFile."clangd/config.yaml".source = ./config/clangd/config.yaml;
+
   xdg.configFile."fastfetch" = {
     source = ./config/fastfetch;
     recursive = true;
@@ -249,8 +252,13 @@
   # ═══════════════════════════════════════════════════════════════════════════
   # 🏠 ENVIRONMENT VARIABLES
   # ═══════════════════════════════════════════════════════════════════════════
-  home.sessionVariables = {
-    EDITOR = "nvim";
-    VISUAL = "nvim";
-  };
+    home.sessionVariables = {
+        EDITOR = "nvim";
+        VISUAL = "nvim";
+        NPM_CONFIG_PREFIX = "$HOME/.npm-global";
+    };
+    home.sessionPath = [
+        "$HOME/.npm-global/bin"
+    ];
 }
+
