@@ -162,6 +162,26 @@
             local OUT="''${SRC%.*}"
             g++ -std=c++17 -Wall "$SRC" -o "$OUT" && ./"$OUT"
           }
+
+          # create a cpp file with Template
+          tmpl(){
+            local SRC="$HOME/dotfiles/utils/template.cpp"
+            local DEST=$1
+
+            if [ -z "$DEST" ]; then
+                echo "Usage: tmpl <file_name>"
+                return 1
+            fi
+            
+            if [ ! -f "$SRC" ]; then
+                echo "Template file does not exist"
+                return 1
+            fi
+            
+            cp "$SRC" "$DEST"
+            nvim "$DEST"
+
+          }
           
           # Create contest folder
           Contest() {
