@@ -147,7 +147,8 @@
           # python
           export LD_LIBRARY_PATH="${pkgs.stdenv.cc.cc.lib}/lib:${pkgs.zlib}/lib:$LD_LIBRARY_PATH"
 
-
+          # Free memory for competitive programing
+          ulimit -s 1048576
           # ═══════════════════════════════════════════════════════════════
           # Custom Functions
           # ═══════════════════════════════════════════════════════════════
