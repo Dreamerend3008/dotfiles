@@ -185,32 +185,46 @@ In insert mode, when the completion menu is visible:
 
 ## 13) Competitive programming workflow
 
-From `lua/cp.lua`:
+From `lua/cp.lua`. **All execution is async — Neovim never freezes**, even on infinite loops.
 
 | Action | Key |
 |---|---|
 | Open `input.txt` + `expected.txt` splits | `<leader>t` |
-| Open runner (press again to run with pasted stdin) | `<leader>r` |
-| Compile/run using `input.txt` and diff vs `expected.txt` | `<leader>R` |
+| Open runner (press again to run, **1s timeout**) | `<leader>r` |
+| Compile/run + diff vs `expected.txt` (**1s timeout**) | `<leader>R` |
+| Brute force runner (**30s timeout**) | `<leader>b` |
+| Brute force compile/run + diff (**30s timeout**) | `<leader>B` |
+| Kill running process immediately | `<leader>k` |
 
-### Runner workflow (`<leader>r`)
+### Runner workflow (`<leader>r` / `<leader>b`)
 
 1. First press: Opens input/output panels on the right
 2. Paste your test input in the `[CP Input]` buffer
 3. Second press: Compiles and runs, shows output with timing
+4. Use `<leader>b` instead for brute force solutions that need more than 1 second
 
-### Diff workflow (`<leader>R`)
+### Diff workflow (`<leader>R` / `<leader>B`)
 
 1. Create `input.txt` and `expected.txt` in your working directory
 2. Press `<leader>R` to compile, run, and open a diff view
 3. Green = matches expected, Red = differs
+4. Use `<leader>B` for brute force solutions
+
+### Timeout & safety behavior
+
+- Default timeout (**1s**): process is killed with SIGKILL after 1 second
+- Brute force timeout (**30s**): same mechanism, longer leash
+- On TLE: output shows `⏱ TLE — Time Limit Exceeded`
+- `<leader>k` kills any running process at any time
+- If a process is already running, pressing run again warns you instead of spawning a second one
 
 ### Output information
 
 The output shows:
 - **Timing**: `--- 12 ms ---` or `--- 1.25 s ---` at the bottom
+- **TLE**: `⏱ TLE — Time Limit Exceeded (1000 ms)` when timeout fires
 - **Runtime errors**: Segfaults, aborts, and other crashes are clearly labeled
-- **Compile errors**: Shown if compilation fails
+- **Compile errors**: Shown if compilation fails (compilation is synchronous and safe)
 
 ### Supported languages
 
