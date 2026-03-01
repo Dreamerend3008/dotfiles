@@ -42,7 +42,7 @@ local function get_cmd_for_file(file, ext, bin)
     local cxx = find_executable({ "g++", "clang++", "c++" })
     if not cxx then return nil, "No C++ compiler found (g++, clang++)" end
     return {
-      compile = string.format("%s -std=c++17 -O2 -Wall %s -o %s", cxx, se(file), se(bin)),
+      compile = string.format("%s -std=c++17 -O2 -Wall -Wextra -fsanitize=address,undefined -g %s -o %s", cxx, se(file), se(bin)),
       run = bin,
     }
   end
@@ -52,7 +52,7 @@ local function get_cmd_for_file(file, ext, bin)
     local cc = find_executable({ "gcc", "clang", "cc" })
     if not cc then return nil, "No C compiler found (gcc, clang)" end
     return {
-      compile = string.format("%s -std=c11 -O2 -Wall %s -o %s", cc, se(file), se(bin)),
+      compile = string.format("%s -std=c11 -O2 -Wall -Wextra -fsanitize=address,undefined -g %s -o %s", cc, se(file), se(bin)),
       run = bin,
     }
   end
@@ -229,13 +229,40 @@ local function runner_run()
     end
   end
 
-  -- Run
+  -- Run with timing
   vim.notify("Running...", vim.log.levels.INFO)
-  local run_cmd = cmd.run
+  local run_cmd = cmd.run .. " 2>&1"
+  local start_time = vim.loop.hrtime()
   out = vim.fn.system(run_cmd, input)
+  local elapsed_ms = (vim.loop.hrtime() - start_time) / 1e6
+  local exit_code = vim.v.shell_error
+
+  -- Check for runtime errors (segfault, etc.)
+  local prefix = ""
+  if exit_code ~= 0 then
+    if exit_code == 139 or exit_code == 11 then
+      prefix = "SEGMENTATION FAULT (exit " .. exit_code .. "):\n"
+    elseif exit_code == 134 or exit_code == 6 then
+      prefix = "ABORTED (exit " .. exit_code .. "):\n"
+    elseif exit_code == 136 or exit_code == 8 then
+      prefix = "FLOATING POINT EXCEPTION (exit " .. exit_code .. "):\n"
+    else
+      prefix = "RUNTIME ERROR (exit " .. exit_code .. "):\n"
+    end
+    vim.notify("Runtime error!", vim.log.levels.ERROR)
+  end
+
+  -- Format time nicely
+  local time_str
+  if elapsed_ms < 1000 then
+    time_str = string.format("%.0f ms", elapsed_ms)
+  else
+    time_str = string.format("%.2f s", elapsed_ms / 1000)
+  end
+  local footer = "\n--- " .. time_str .. " ---"
 
   vim.bo[output_buf].modifiable = true
-  vim.api.nvim_buf_set_lines(output_buf, 0, -1, false, vim.split(out, "\n"))
+  vim.api.nvim_buf_set_lines(output_buf, 0, -1, false, vim.split(prefix .. out .. footer, "\n"))
   vim.bo[output_buf].modifiable = false
 end
 
@@ -286,10 +313,42 @@ vim.keymap.set("n", "<leader>R", function()
     end
   end
 
-  -- Run with input file
+  -- Run with input file and timing
   vim.notify("Running...", vim.log.levels.INFO)
   local run_cmd = string.format("%s < %s > %s 2>&1", se(cmd.run), se(input), se(output))
+  local start_time = vim.loop.hrtime()
   vim.fn.system(run_cmd)
+  local elapsed_ms = (vim.loop.hrtime() - start_time) / 1e6
+  local exit_code = vim.v.shell_error
+
+  -- Format time
+  local time_str
+  if elapsed_ms < 1000 then
+    time_str = string.format("%.0f ms", elapsed_ms)
+  else
+    time_str = string.format("%.2f s", elapsed_ms / 1000)
+  end
+
+  -- Check for runtime errors and prepend to output file
+  local existing = vim.fn.readfile(output)
+  if exit_code ~= 0 then
+    local error_msg
+    if exit_code == 139 or exit_code == 11 then
+      error_msg = "SEGMENTATION FAULT (exit " .. exit_code .. ")"
+    elseif exit_code == 134 or exit_code == 6 then
+      error_msg = "ABORTED (exit " .. exit_code .. ")"
+    elseif exit_code == 136 or exit_code == 8 then
+      error_msg = "FLOATING POINT EXCEPTION (exit " .. exit_code .. ")"
+    else
+      error_msg = "RUNTIME ERROR (exit " .. exit_code .. ")"
+    end
+    table.insert(existing, 1, error_msg)
+    table.insert(existing, 2, "---")
+    vim.notify(error_msg, vim.log.levels.ERROR)
+  end
+  -- Append timing
+  table.insert(existing, "--- " .. time_str .. " ---")
+  vim.fn.writefile(existing, output)
 
   -- Open diff view
   vim.cmd("vsplit " .. vim.fn.fnameescape(expected))

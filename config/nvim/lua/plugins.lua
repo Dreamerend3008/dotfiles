@@ -118,6 +118,13 @@ require("lazy").setup({
     end,
   },
 
+  -- Undotree - visualize and navigate undo history
+  {
+    "mbbill/undotree",
+    cmd = "UndotreeToggle",
+    keys = { { "<leader>u", "<cmd>UndotreeToggle<CR>", desc = "Toggle undo tree" } },
+  },
+
   -- ╭─────────────────────────────────────────────────────────────────────────╮
   -- │ 🧭 NAVIGATION / UI                                                        │
   -- ╰─────────────────────────────────────────────────────────────────────────╯

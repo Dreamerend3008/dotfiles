@@ -55,9 +55,23 @@ vim.opt.splitbelow = true       -- New horizontal splits go below
 vim.opt.mouse = "a"             -- Enable mouse support
 vim.opt.clipboard = "unnamedplus" -- Use system clipboard
 vim.opt.undofile = true         -- Persistent undo (survives closing file)
+vim.opt.undolevels = 10000      -- Maximum undo history
 vim.opt.swapfile = false        -- No swap files (annoying)
 vim.opt.updatetime = 250        -- Faster completion (ms)
 vim.opt.timeoutlen = 300        -- Faster key sequence completion
+
+-- ┌────────────────────────────────────────────────────────────────────────────┐
+-- │ Autosave                                                                    │
+-- └────────────────────────────────────────────────────────────────────────────┘
+vim.api.nvim_create_autocmd({ "InsertLeave", "TextChanged" }, {
+  pattern = "*",
+  callback = function()
+    if vim.bo.modified and vim.bo.buftype == "" and vim.fn.expand("%") ~= "" then
+      vim.cmd("silent! write")
+    end
+  end,
+  desc = "Autosave on text change",
+})
 
 -- ┌────────────────────────────────────────────────────────────────────────────┐
 -- │ Transparent popup menu (for completion)                                     │
