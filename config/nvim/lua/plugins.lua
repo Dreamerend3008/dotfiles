@@ -164,7 +164,8 @@ require("lazy").setup({
   -- │ Better syntax highlighting based on parsing, not regex.                 │
   -- │ Also enables smart indentation and text objects.                        │
   -- ╰─────────────────────────────────────────────────────────────────────────╯
-  {
+
+    {
     "nvim-treesitter/nvim-treesitter",
     branch = "master",
     build = ":TSUpdate",
@@ -176,14 +177,14 @@ require("lazy").setup({
       end
 
       configs.setup({
-        ensure_installed = {
-          "lua", "vim", "vimdoc", "query", "nix", "bash",
+            ensure_installed = {
+            "lua", "vim", "vimdoc", "query", "nix", "bash",
           "c", "cpp", "python", "javascript", "typescript", "json", "markdown",
         },
         auto_install = false,
         highlight = { enable = true },
-        indent = { enable = true },
-      })
+        indent = { enable = true, disable = { "cpp", "c" } },
+        })
     end,
   },
 })

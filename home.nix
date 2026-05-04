@@ -69,7 +69,6 @@
         # system libraries your packages need
         stdenv.cc.cc.lib
         zlib
-
     ];
 
   # ═══════════════════════════════════════════════════════════════════════════
