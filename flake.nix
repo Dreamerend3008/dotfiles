@@ -1,5 +1,5 @@
 {
-  description = "Harry's Multi-System Configuration - Works on NixOS, Ubuntu, and WSL";
+  description = "Harry's Multi-System Configuration";
 
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs/nixpkgs-unstable";
@@ -17,30 +17,11 @@
   in
   {
     # ═══════════════════════════════════════════════════════════════════
-    # 🏠 HOME MANAGER STANDALONE (Ubuntu/WSL)
+    # 🏠 HOME MANAGER STANDALONE
     # ═══════════════════════════════════════════════════════════════════
     homeConfigurations."harry" = home-manager.lib.homeManagerConfiguration {
       inherit pkgs;
       modules = [ ./home.nix ];
-    };
-
-    # ═══════════════════════════════════════════════════════════════════
-    # 🖥️  NIXOS SYSTEM (cuando uses NixOS)
-    # ═══════════════════════════════════════════════════════════════════
-    nixosConfigurations.nixos = nixpkgs.lib.nixosSystem {
-      inherit system;
-      modules = [
-        # Tu configuración de sistema NixOS
-        ./configuration.nix
-        
-        # Home Manager como módulo de NixOS
-        home-manager.nixosModules.home-manager
-        {
-          home-manager.useGlobalPkgs = true;
-          home-manager.useUserPackages = true;
-          home-manager.users.harry = ./home.nix;
-        }
-      ];
     };
 
     # Package por defecto para instalación fácil

@@ -1,10 +1,3 @@
-# ╔══════════════════════════════════════════════════════════════════════════════╗
-# ║                               HOME.NIX                                        ║
-# ║                                                                               ║
-# ║  Configuración COMPARTIDA entre NixOS, Ubuntu y WSL                          ║
-# ║  Este archivo funciona en cualquier sistema!                                 ║
-# ╚══════════════════════════════════════════════════════════════════════════════╝
-
 { config, pkgs,lib,... }:
 
 {
@@ -214,71 +207,71 @@
         '';
     };
 
-  # ═══════════════════════════════════════════════════════════════════════════
-  # ⭐ STARSHIP
-  # ═══════════════════════════════════════════════════════════════════════════
-  programs.starship = {
+    # ═══════════════════════════════════════════════════════════════════════════
+    # ⭐ STARSHIP
+    # ═══════════════════════════════════════════════════════════════════════════
+    programs.starship = {
     enable = true;
     enableZshIntegration = false;
-  };
-  
-  xdg.configFile."starship.toml".source = ./config/starship.toml;
-
-  # ═══════════════════════════════════════════════════════════════════════════
-  # 🔧 GIT
-  # ═══════════════════════════════════════════════════════════════════════════
-  
-    programs.git = {
-    enable = true;
-    settings = {
-      user.name = "Dreamerend3008";
-      user.email = "79518618+Dreamerend3008@users.noreply.github.com";
-      init.defaultBranch = "main";
-      pull.rebase = false;
-      push.autoSetupRemote = true;
-      core.pager = "less -FR";
-      alias = {
-        st = "status";
-        co = "checkout";
-        br = "branch";
-        ci = "commit";
-        lg = "log --oneline --graph --decorate";
-      };
     };
-  };
+
+    xdg.configFile."starship.toml".source = ./config/starship.toml;
+
+    # ═══════════════════════════════════════════════════════════════════════════
+    # 🔧 GIT
+    # ═══════════════════════════════════════════════════════════════════════════
+
+    programs.git = {
+        enable = true;
+        settings = {
+          user.name = "Dreamerend3008";
+          user.email = "79518618+Dreamerend3008@users.noreply.github.com";
+          init.defaultBranch = "main";
+          pull.rebase = false;
+          push.autoSetupRemote = true;
+          core.pager = "less -FR";
+          alias = {
+            st = "status";
+            co = "checkout";
+            br = "branch";
+            ci = "commit";
+            lg = "log --oneline --graph --decorate";
+          };
+        };
+    };
 
 
-  # ═══════════════════════════════════════════════════════════════════════════
-  # 📁 DOTFILES
-  # ═══════════════════════════════════════════════════════════════════════════
-  xdg.configFile."kitty" = {
-    source = ./config/kitty;
-    recursive = true;
-  };
+    # ═══════════════════════════════════════════════════════════════════════════
+    # 📁 DOTFILES
+    # ═══════════════════════════════════════════════════════════════════════════
+    xdg.configFile."kitty" = {
+        source = ./config/kitty;
+        recursive = true;
+    };
 
-  xdg.configFile."nvim" = {
-    source = ./config/nvim;
-    recursive = true;
-  };
+    xdg.configFile."nvim" = {
+        source = ./config/nvim;
+        recursive = true;
+    };
 
-  # Global clangd configuration (applies to all projects, avoids per-folder .clangd files)
-  xdg.configFile."clangd/config.yaml".source = ./config/clangd/config.yaml;
+    # Global clangd configuration (applies to all projects, avoids per-folder .clangd files)
+    xdg.configFile."clangd/config.yaml".source = ./config/clangd/config.yaml;
 
-  xdg.configFile."fastfetch" = {
-    source = ./config/fastfetch;
-    recursive = true;
-  };
+    xdg.configFile."fastfetch" = {
+        source = ./config/fastfetch;
+        recursive = true;
+    };
 
-  # ═══════════════════════════════════════════════════════════════════════════
-  # 🏠 ENVIRONMENT VARIABLES
-  # ═══════════════════════════════════════════════════════════════════════════
+    # ═══════════════════════════════════════════════════════════════════════════
+    # 🏠 ENVIRONMENT VARIABLES
+    # ═══════════════════════════════════════════════════════════════════════════
     home.sessionVariables = {
-        EDITOR = "nvim";
-        VISUAL = "nvim";
-        NPM_CONFIG_PREFIX = "$HOME/.npm-global";
+            EDITOR = "nvim";
+            VISUAL = "nvim";
+            NPM_CONFIG_PREFIX = "$HOME/.npm-global";
     };
     home.sessionPath = [
-        "$HOME/.npm-global/bin"
-    ];
-}
+            "$HOME/.npm-global/bin"
+        ];
+    }
 
