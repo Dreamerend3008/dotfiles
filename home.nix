@@ -1,12 +1,6 @@
 { config, pkgs,lib,... }:
 
 {
-    # ┌────────────────────────────────────────────────────────────────────────────┐
-    # │ USER CONFIGURATION                                                          │
-    # │                                                                             │
-    # │ ⚠️  CAMBIAR SOLO EN STANDALONE (Ubuntu/WSL)                                │
-    # │ En NixOS esto lo maneja configuration.nix                                  │
-    # └────────────────────────────────────────────────────────────────────────────┘
     home.username = "harry";
     home.homeDirectory = "/home/harry";
     home.stateVersion = "24.05";
@@ -71,30 +65,31 @@
         enable = true;
 
         shellAliases = {
-          # File listing
-          ls = "lsd";
-          l = "ls -l";
-          la = "ls -a";
-          lla = "ls -la";
-          lt = "ls --tree";
-          
-          # Git
-          lg = "lazygit";
-          gs = "git status";
-          gp = "git push";
-          gl = "git pull";
-          
-          # Navigation
-          cd = "z";
-          
-          # Config shortcuts
-          ez = "nvim ~/dotfiles/home.nix";
-          hy = "cd ~/.config/hypr/configs";
-          uni = "cd /mnt/c/Users/juanb";
-         # Update commands (detecta automáticamente el sistema)
-          update = "if [ -f /etc/nixos/configuration.nix ]; then sudo nixos-rebuild switch --flake ~/dotfiles; else home-manager switch --flake ~/dotfiles; fi";
-          update-home = "home-manager switch --flake ~/dotfiles";
-          update-system = "sudo nixos-rebuild switch --flake ~/dotfiles";
+                # File listing
+                ls = "lsd";
+                l = "ls -l";
+                la = "ls -a";
+                lla = "ls -la";
+                lt = "ls --tree";
+
+                # Git
+                lg = "lazygit";
+                gs = "git status";
+                gp = "git push";
+                gl = "git pull";
+
+                # Navigation
+                cd = "z";
+
+                # Config shortcuts
+                ez = "nvim ~/dotfiles/home.nix";
+                hy = "cd ~/.config/hypr/configs";
+                uni = "cd /mnt/c/Users/juanb";
+
+                # Update dotfiles commands 
+                update = "if [ -f /etc/nixos/configuration.nix ]; then sudo nixos-rebuild switch --flake ~/dotfiles; else home-manager switch --flake ~/dotfiles; fi";
+                update-home = "home-manager switch --flake ~/dotfiles";
+                update-system = "sudo nixos-rebuild switch --flake ~/dotfiles";
         };
 
         oh-my-zsh = {
@@ -141,6 +136,7 @@
 
           # Free memory for competitive programing
           ulimit -s 1048576
+          
           # ═══════════════════════════════════════════════════════════════
           # Custom Functions
           # ═══════════════════════════════════════════════════════════════
@@ -176,32 +172,6 @@
 
           }
           
-          # Create contest folder
-          Contest() {
-            local SRC="$HOME/cp/tmplcontest"
-            local DEST=$1
-            
-            if [ -z "$DEST" ]; then
-              echo "Usage: Contest <new_contest_name>"
-              return 1
-            fi
-            
-            if [ ! -d "$SRC" ]; then
-              echo "Template folder '$SRC' does not exist."
-              return 1
-            fi
-            
-            if [ -d "$DEST" ]; then
-              echo "Destination folder '$DEST' already exists."
-              return 1
-            fi
-            
-            cp -r "$SRC" "$DEST"
-            cd "$DEST" || { echo "Directory not found: $DEST"; return 1; }
-            echo "✅ New contest created: $DEST"
-          }
-        '';
-
         profileExtra = ''
           export PATH="$HOME/.local/bin:$PATH"
         '';
