@@ -1,15 +1,5 @@
 # 🏠 Harry's Dotfiles - Multi-Sistema
 
-> Configuración declarativa que funciona en **NixOS**, **Ubuntu** y **WSL**
-
-## 🎯 ¿Qué hace especial esta configuración?
-
-Esta configuración usa **Nix Flakes** y **Home Manager** de forma inteligente:
-
-- 🖥️  **En NixOS**: Home Manager se integra con la configuración del sistema
-- 🐧 **En Ubuntu/WSL**: Home Manager funciona standalone (como siempre)
-- 📦 **Mismo código**: Compartes el 99% de la configuración entre sistemas
-
 ## 📂 Estructura
 
 ```
@@ -34,9 +24,6 @@ sh <(curl -L https://nixos.org/nix/install) --daemon
 # Para WSL: sh <(curl -L https://nixos.org/nix/install) --no-daemon
 ```
 
-#### En NixOS:
-Ya viene instalado! ✅
-
 ### ⚙️  Paso 2: Habilitar Flakes
 
 ```bash
@@ -59,7 +46,6 @@ cd ~/dotfiles
 
 1. **En `flake.nix`**: Cambia `"harry"` por tu username
 2. **En `home.nix`**: Cambia `home.username` y `home.homeDirectory`
-3. **En `configuration.nix`** (solo NixOS): Cambia el hostname y usuario
 
 ### 🎮 Paso 5: Aplicar configuración
 
@@ -75,28 +61,6 @@ chsh -s "$HOME/.nix-profile/bin/zsh"
 # Reinicia terminal
 exec zsh
 ```
-
-#### **En NixOS:**
-
-Primero, copia la configuración de hardware:
-```bash
-# Si tienes /etc/nixos/hardware-configuration.nix
-cp /etc/nixos/hardware-configuration.nix ~/dotfiles/
-
-# Si no existe, genera una:
-sudo nixos-generate-config --show-hardware-config > ~/dotfiles/hardware-configuration.nix
-```
-
-Luego aplica:
-```bash
-# Primera vez (todo el sistema + home)
-sudo nixos-rebuild switch --flake ~/dotfiles
-
-# Las siguientes veces usa el alias:
-update
-```
-
-**Nota**: En NixOS, Zsh ya queda como shell por defecto automáticamente.
 
 ### 🧠 Neovim: requisitos (externos a Nix)
 
@@ -149,7 +113,6 @@ update   # o: nix run . -- switch --flake . -b backup
 # En cualquier sistema, solo escribe:
 update
 
-# En NixOS: hace 'sudo nixos-rebuild switch'
 # En Ubuntu/WSL: hace 'home-manager switch'
 ```
 
@@ -157,7 +120,6 @@ update
 
 ```bash
 update-home      # Solo actualiza Home Manager
-update-system    # Solo actualiza el sistema NixOS (requiere sudo)
 ```
 
 ### ✏️  Editar configuración
@@ -178,39 +140,9 @@ nix search nixpkgs <nombre-paquete>
 # O visita: https://search.nixos.org/packages
 ```
 
-### ➕ Agregar nuevo paquete
-
-Edita `home.nix`:
-```nix
-home.packages = with pkgs; [
-  # ... paquetes existentes ...
-  tu-nuevo-paquete
-];
-```
-
-Luego: `update`
-
 ---
 
 ## 🎯 Comandos según el Sistema
-
-### En NixOS
-
-```bash
-# Actualizar TODO (sistema + home)
-sudo nixos-rebuild switch --flake ~/dotfiles
-# o simplemente:
-update
-
-# Solo actualizar Home Manager
-home-manager switch --flake ~/dotfiles
-# o:
-update-home
-
-# Garbage collection
-sudo nix-collect-garbage -d
-nix-collect-garbage -d  # Solo paquetes de usuario
-```
 
 ### En Ubuntu/WSL
 
