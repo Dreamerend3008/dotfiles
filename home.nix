@@ -172,8 +172,8 @@
             nvim "$DEST"
 
           }
-          
-        profileExtra = export PATH="$HOME/.local/bin:$PATH"
+        '';
+        profileExtra = '' export PATH="$HOME/.local/bin:$PATH"
         '';
     };
 
