@@ -1,19 +1,6 @@
-# ╔══════════════════════════════════════════════════════════════════════════════╗
-# ║                               HOME.NIX                                        ║
-# ║                                                                               ║
-# ║  Configuración COMPARTIDA entre NixOS, Ubuntu y WSL                          ║
-# ║  Este archivo funciona en cualquier sistema!                                 ║
-# ╚══════════════════════════════════════════════════════════════════════════════╝
-
 { config, pkgs,lib,... }:
 
 {
-    # ┌────────────────────────────────────────────────────────────────────────────┐
-    # │ USER CONFIGURATION                                                          │
-    # │                                                                             │
-    # │ ⚠️  CAMBIAR SOLO EN STANDALONE (Ubuntu/WSL)                                │
-    # │ En NixOS esto lo maneja configuration.nix                                  │
-    # └────────────────────────────────────────────────────────────────────────────┘
     home.username = "harry";
     home.homeDirectory = "/home/harry";
     home.stateVersion = "24.05";
@@ -38,6 +25,7 @@
         tree
         htop
         btop
+        yazi
 
         # 🛠️  development
         git
@@ -69,7 +57,6 @@
         # system libraries your packages need
         stdenv.cc.cc.lib
         zlib
-
     ];
 
   # ═══════════════════════════════════════════════════════════════════════════
@@ -79,30 +66,31 @@
         enable = true;
 
         shellAliases = {
-          # File listing
-          ls = "lsd";
-          l = "ls -l";
-          la = "ls -a";
-          lla = "ls -la";
-          lt = "ls --tree";
-          
-          # Git
-          lg = "lazygit";
-          gs = "git status";
-          gp = "git push";
-          gl = "git pull";
-          
-          # Navigation
-          cd = "z";
-          
-          # Config shortcuts
-          ez = "nvim ~/dotfiles/home.nix";
-          hy = "cd ~/.config/hypr/configs";
-          uni = "cd /mnt/c/Users/juanb";
-         # Update commands (detecta automáticamente el sistema)
-          update = "if [ -f /etc/nixos/configuration.nix ]; then sudo nixos-rebuild switch --flake ~/dotfiles; else home-manager switch --flake ~/dotfiles; fi";
-          update-home = "home-manager switch --flake ~/dotfiles";
-          update-system = "sudo nixos-rebuild switch --flake ~/dotfiles";
+                # File listing
+                ls = "lsd";
+                l = "ls -l";
+                la = "ls -a";
+                lla = "ls -la";
+                lt = "ls --tree";
+
+                # Git
+                lg = "lazygit";
+                gs = "git status";
+                gp = "git push";
+                gl = "git pull";
+
+                # Navigation
+                cd = "z";
+
+                # Config shortcuts
+                ez = "nvim ~/dotfiles/home.nix";
+                hy = "cd ~/.config/hypr/configs";
+                uni = "cd /mnt/c/Users/juanb";
+
+                # Update dotfiles commands 
+                update = "if [ -f /etc/nixos/configuration.nix ]; then sudo nixos-rebuild switch --flake ~/dotfiles; else home-manager switch --flake ~/dotfiles; fi";
+                update-home = "home-manager switch --flake ~/dotfiles";
+                update-system = "sudo nixos-rebuild switch --flake ~/dotfiles";
         };
 
         oh-my-zsh = {
@@ -149,6 +137,7 @@
 
           # Free memory for competitive programing
           ulimit -s 1048576
+          
           # ═══════════════════════════════════════════════════════════════
           # Custom Functions
           # ═══════════════════════════════════════════════════════════════
@@ -183,75 +172,47 @@
             nvim "$DEST"
 
           }
-          
-          # Create contest folder
-          Contest() {
-            local SRC="$HOME/cp/tmplcontest"
-            local DEST=$1
-            
-            if [ -z "$DEST" ]; then
-              echo "Usage: Contest <new_contest_name>"
-              return 1
-            fi
-            
-            if [ ! -d "$SRC" ]; then
-              echo "Template folder '$SRC' does not exist."
-              return 1
-            fi
-            
-            if [ -d "$DEST" ]; then
-              echo "Destination folder '$DEST' already exists."
-              return 1
-            fi
-            
-            cp -r "$SRC" "$DEST"
-            cd "$DEST" || { echo "Directory not found: $DEST"; return 1; }
-            echo "✅ New contest created: $DEST"
-          }
         '';
-
-        profileExtra = ''
-          export PATH="$HOME/.local/bin:$PATH"
+        profileExtra = '' export PATH="$HOME/.local/bin:$PATH"
         '';
     };
 
-  # ═══════════════════════════════════════════════════════════════════════════
-  # ⭐ STARSHIP
-  # ═══════════════════════════════════════════════════════════════════════════
-  programs.starship = {
+    # ═══════════════════════════════════════════════════════════════════════════
+    # ⭐ STARSHIP
+    # ═══════════════════════════════════════════════════════════════════════════
+    programs.starship = {
     enable = true;
     enableZshIntegration = false;
-  };
-  
-  xdg.configFile."starship.toml".source = ./config/starship.toml;
-
-  # ═══════════════════════════════════════════════════════════════════════════
-  # 🔧 GIT
-  # ═══════════════════════════════════════════════════════════════════════════
-  
-    programs.git = {
-    enable = true;
-    settings = {
-      user.name = "Dreamerend3008";
-      user.email = "79518618+Dreamerend3008@users.noreply.github.com";
-      init.defaultBranch = "main";
-      pull.rebase = false;
-      push.autoSetupRemote = true;
-      core.pager = "less -FR";
-      alias = {
-        st = "status";
-        co = "checkout";
-        br = "branch";
-        ci = "commit";
-        lg = "log --oneline --graph --decorate";
-      };
     };
-  };
 
+    xdg.configFile."starship.toml".source = ./config/starship.toml;
 
-  # ═══════════════════════════════════════════════════════════════════════════
-  # 📁 DOTFILES
-  # ═══════════════════════════════════════════════════════════════════════════
+    # ═══════════════════════════════════════════════════════════════════════════
+    # 🔧 GIT
+    # ═══════════════════════════════════════════════════════════════════════════
+
+    programs.git = {
+        enable = true;
+        settings = {
+          user.name = "Dreamerend3008";
+          user.email = "79518618+Dreamerend3008@users.noreply.github.com";
+          init.defaultBranch = "main";
+          pull.rebase = false;
+          push.autoSetupRemote = true;
+          core.pager = "less -FR";
+          alias = {
+            st = "status";
+            co = "checkout";
+            br = "branch";
+            ci = "commit";
+            lg = "log --oneline --graph --decorate";
+          };
+        };
+    };
+
+    # ═══════════════════════════════════════════════════════════════════════════
+    # 📁 DOTFILES
+    # ═══════════════════════════════════════════════════════════════════════════
     xdg.configFile."kitty" = {
         source = ./config/kitty;
         recursive = true;
@@ -275,16 +236,16 @@
         recursive = true;
     };
 
-  # ═══════════════════════════════════════════════════════════════════════════
-  # 🏠 ENVIRONMENT VARIABLES
-  # ═══════════════════════════════════════════════════════════════════════════
+    # ═══════════════════════════════════════════════════════════════════════════
+    # 🏠 ENVIRONMENT VARIABLES
+    # ═══════════════════════════════════════════════════════════════════════════
     home.sessionVariables = {
-        EDITOR = "nvim";
-        VISUAL = "nvim";
-        NPM_CONFIG_PREFIX = "$HOME/.npm-global";
+            EDITOR = "nvim";
+            VISUAL = "nvim";
+            NPM_CONFIG_PREFIX = "$HOME/.npm-global";
     };
     home.sessionPath = [
-        "$HOME/.npm-global/bin"
-    ];
-}
+            "$HOME/.npm-global/bin"
+        ];
+    }
 

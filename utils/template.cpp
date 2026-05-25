@@ -5,6 +5,8 @@ using namespace std;
 #define all(x) (x).begin(), (x).end()
 #define endl '\n'
 
+// Funny solution
+
 void solve() {
 	
 }

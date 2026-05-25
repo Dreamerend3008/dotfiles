@@ -73,6 +73,18 @@ vim.api.nvim_create_autocmd({ "InsertLeave", "TextChanged" }, {
   desc = "Autosave on text change",
 })
 
+
+-- ┌────────────────────────────────────────────────────────────────────────────┐
+-- │ CPP indent                                                                 │
+-- └────────────────────────────────────────────────────────────────────────────┘
+vim.api.nvim_create_autocmd("FileType", {
+  pattern = { "cpp", "c" },
+  callback = function()
+    vim.bo.indentexpr = ""
+    vim.bo.cindent = true
+  end,
+})
+
 -- ┌────────────────────────────────────────────────────────────────────────────┐
 -- │ Transparent popup menu (for completion)                                     │
 -- └────────────────────────────────────────────────────────────────────────────┘
