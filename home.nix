@@ -252,23 +252,28 @@
   # ═══════════════════════════════════════════════════════════════════════════
   # 📁 DOTFILES
   # ═══════════════════════════════════════════════════════════════════════════
-  xdg.configFile."kitty" = {
-    source = ./config/kitty;
-    recursive = true;
-  };
+    xdg.configFile."kitty" = {
+        source = ./config/kitty;
+        recursive = true;
+    };
 
-  xdg.configFile."nvim" = {
-    source = ./config/nvim;
-    recursive = true;
-  };
+    xdg.configFile."ghostty" = {
+        source = ./config/ghostty;
+        recursive = true;
+    };
 
-  # Global clangd configuration (applies to all projects, avoids per-folder .clangd files)
-  xdg.configFile."clangd/config.yaml".source = ./config/clangd/config.yaml;
+    xdg.configFile."nvim" = {
+        source = ./config/nvim;
+        recursive = true;
+    };
 
-  xdg.configFile."fastfetch" = {
-    source = ./config/fastfetch;
-    recursive = true;
-  };
+    # Global clangd configuration (applies to all projects, avoids per-folder .clangd files)
+    xdg.configFile."clangd/config.yaml".source = ./config/clangd/config.yaml;
+
+    xdg.configFile."fastfetch" = {
+        source = ./config/fastfetch;
+        recursive = true;
+    };
 
   # ═══════════════════════════════════════════════════════════════════════════
   # 🏠 ENVIRONMENT VARIABLES
