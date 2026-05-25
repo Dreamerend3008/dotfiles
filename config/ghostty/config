@@ -1,17 +1,24 @@
+
 # Remove the OS title bar for a seamless, floating app look
-window-decoration = false
+# window-decoration = false
+
+# Window default size
+window-width = 140
+window-height = 40
+
+# Transparency
+background-opacity = 0.9
 
 # Add generous padding so text doesn't touch the glass (crucial for the modern look)
-window-padding-x = 20
-window-padding-y = 20
+window-padding-x = 10
+window-padding-y = 10
 
-# --- 3. Theme ---
-# Ghostty ships with hundreds of built-in themes. Catppuccin Mocha gives that 
-# glowing, high-contrast modern feel that Tabby defaults to.
-# theme = Catppuccin Mocha
+# Theme
 theme = dark:Catppuccin Mocha,light:Catppuccin Latte # If you want auto-switching
 
-# --- 4. Cursor ---
-# Make the cursor a blinking bar instead of a block
-cursor-style = bar
-cursor-style-blink = true
+# keybindings
+keybind = performable:ctrl+h=goto_split:left
+keybind = performable:ctrl+j=goto_split:down
+keybind = performable:ctrl+k=goto_split:up
+keybind = performable:ctrl+l=goto_split:right
+
