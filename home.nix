@@ -7,86 +7,41 @@
 
     programs.home-manager.enable = true;
 
-
-    # ═══════════════════════════════════════════════════════════════════════════
-    # 📦 PAQUETES DE USUARIO
-    # ═══════════════════════════════════════════════════════════════════════════
+    # Packages
     home.packages = with pkgs; [
-        # 🐚 shell & terminal
-        zsh
-        starship
-        zoxide
-        fzf
-        lsd
-        bat
-        eza
-        ripgrep
-        fd
-        tree
-        htop
-        btop
-        yazi
+        # shell & terminal
+        zsh starship zoxide fzf lsd bat eza ripgrep fd tree htop btop yazi
 
-        # 🛠️  development
-        git
-        lazygit
-        tree-sitter
-        gnumake
-        cmake
-        nodejs
-        pkg-config
+        # development
+        git lazygit tree-sitter gnumake cmake nodejs pkg-config
 
-        # NOTE: Neovim tooling (clangd, formatters, pyright, etc.) is installed externally
-        # (system package manager / mise / asdf / etc.), not via Nix.
-
-        # 📊 utilities
-        fastfetch
-        curl
-        wget
-        unzip
-        jq
-        ponysay
-        zip
-        unzip
-
+        # Neovim tooling installed externally
+        
+        # utilities
+        fastfetch curl wget unzip jq ponysay zip
+        
         # python
-        python311 # temporal while i test pyenv
-        #python311packages.pip
-        #python311packages.virtualenv
-
-        # system libraries your packages need
-        stdenv.cc.cc.lib
-        zlib
+        python311 # test pyenv
+        
+        # system libs
+        stdenv.cc.cc.lib zlib
     ];
 
-  # ═══════════════════════════════════════════════════════════════════════════
-  # 🐚 ZSH CONFIGURATION
-  # ═══════════════════════════════════════════════════════════════════════════
+    # ZSH
     programs.zsh = {
         enable = true;
 
         shellAliases = {
                 # File listing
-                ls = "lsd";
-                l = "ls -l";
-                la = "ls -a";
-                lla = "ls -la";
-                lt = "ls --tree";
-
+                ls = "lsd"; l = "ls -l"; la = "ls -a"; lla = "ls -la"; lt = "ls --tree";
                 # Git
-                lg = "lazygit";
-                gs = "git status";
-                gp = "git push";
-                gl = "git pull";
-
+                lg = "lazygit"; gs = "git status"; gp = "git push"; gl = "git pull";
                 # Navigation
                 cd = "z";
-
                 # Config shortcuts
                 ez = "nvim ~/dotfiles/home.nix";
                 hy = "cd ~/.config/hypr/configs";
                 uni = "cd /mnt/c/Users/juanb";
-
                 # Update dotfiles commands 
                 update = "if [ -f /etc/nixos/configuration.nix ]; then sudo nixos-rebuild switch --flake ~/dotfiles; else home-manager switch --flake ~/dotfiles; fi";
                 update-home = "home-manager switch --flake ~/dotfiles";
@@ -95,102 +50,53 @@
 
         oh-my-zsh = {
           enable = true;
-          plugins = [
-            "git"
-            "sudo"
-            "web-search"
-            "copypath"
-            "copyfile"
-          ];
+          plugins = [ "git" "sudo" "web-search" "copypath" "copyfile" ];
         };
 
         plugins = [
-          {
-            name = "zsh-autosuggestions";
-            src = pkgs.zsh-autosuggestions;
-            file = "share/zsh-autosuggestions/zsh-autosuggestions.zsh";
-          }
-          {
-            name = "zsh-syntax-highlighting";
-            src = pkgs.zsh-syntax-highlighting;
-            file = "share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh";
-          }
+          { name = "zsh-autosuggestions"; src = pkgs.zsh-autosuggestions; file = "share/zsh-autosuggestions/zsh-autosuggestions.zsh"; }
+          { name = "zsh-syntax-highlighting"; src = pkgs.zsh-syntax-highlighting; file = "share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh"; }
         ];
 
         initContent = ''
-        export PATH="$PATH:/snap/bin"
-	export PATH="$HOME/.npm-global/bin:$PATH"
-        # Nix environment (solo necesario en standalone)
-          if [ -e "$HOME/.nix-profile/etc/profile.d/nix.sh" ]; then
-            . "$HOME/.nix-profile/etc/profile.d/nix.sh"
-          fi
+          export PATH="$PATH:/snap/bin"
+          export PATH="$HOME/.npm-global/bin:$PATH"
+          # Nix env (standalone)
+          if [ -e "$HOME/.nix-profile/etc/profile.d/nix.sh" ]; then . "$HOME/.nix-profile/etc/profile.d/nix.sh"; fi
 
-          # System info
           fastfetch -c ~/.config/fastfetch/config.jsonc
           
-          # Prompt & tools
           eval "$(starship init zsh)"
           eval "$(zoxide init zsh)"
 
-          # python
           export LD_LIBRARY_PATH="${pkgs.stdenv.cc.cc.lib}/lib:${pkgs.zlib}/lib:$LD_LIBRARY_PATH"
 
-          # Free memory for competitive programing
+          # Free memory for CP
           ulimit -s 1048576
           
-          # ═══════════════════════════════════════════════════════════════
           # Custom Functions
-          # ═══════════════════════════════════════════════════════════════
-          
-          # Compile and run C++
           runcpp() {
-            if [ -z "$1" ]; then
-              echo "Usage: runcpp <filename.cpp>"
-              return 1
-            fi
-            local SRC="$1"
-            local OUT="''${SRC%.*}"
-            g++ -std=c++17 -Wall "$SRC" -o "$OUT" && ./"$OUT"
+            if [ -z "$1" ]; then echo "Usage: runcpp <filename.cpp>"; return 1; fi
+            g++ -std=c++17 -Wall "$1" -o "''${1%.*}" && ./"''${1%.*}"
           }
 
-          # create a cpp file with Template
           tmpl(){
             local SRC="$HOME/dotfiles/utils/template.cpp"
             local DEST=$1
-
-            if [ -z "$DEST" ]; then
-                echo "Usage: tmpl <file_name>"
-                return 1
-            fi
-            
-            if [ ! -f "$SRC" ]; then
-                echo "Template file does not exist"
-                return 1
-            fi
-            
+            if [ -z "$DEST" ]; then echo "Usage: tmpl <file_name>"; return 1; fi
+            if [ ! -f "$SRC" ]; then echo "Template file does not exist"; return 1; fi
             cp "$SRC" "$DEST"
             nvim "$DEST"
-
           }
         '';
-        profileExtra = '' export PATH="$HOME/.local/bin:$PATH"
-        '';
+        profileExtra = '' export PATH="$HOME/.local/bin:$PATH" '';
     };
 
-    # ═══════════════════════════════════════════════════════════════════════════
-    # ⭐ STARSHIP
-    # ═══════════════════════════════════════════════════════════════════════════
-    programs.starship = {
-    enable = true;
-    enableZshIntegration = false;
-    };
-
+    # Starship
+    programs.starship = { enable = true; enableZshIntegration = false; };
     xdg.configFile."starship.toml".source = ./config/starship.toml;
 
-    # ═══════════════════════════════════════════════════════════════════════════
-    # 🔧 GIT
-    # ═══════════════════════════════════════════════════════════════════════════
-
+    # Git
     programs.git = {
         enable = true;
         settings = {
@@ -200,52 +106,26 @@
           pull.rebase = false;
           push.autoSetupRemote = true;
           core.pager = "less -FR";
-          alias = {
-            st = "status";
-            co = "checkout";
-            br = "branch";
-            ci = "commit";
-            lg = "log --oneline --graph --decorate";
-          };
+          alias = { st = "status"; co = "checkout"; br = "branch"; ci = "commit"; lg = "log --oneline --graph --decorate"; };
         };
     };
 
-    # ═══════════════════════════════════════════════════════════════════════════
-    # 📁 DOTFILES
-    # ═══════════════════════════════════════════════════════════════════════════
-    xdg.configFile."kitty" = {
-        source = ./config/kitty;
-        recursive = true;
-    };
-
-    xdg.configFile."ghostty" = {
-        source = ./config/ghostty;
-        recursive = true;
-    };
-
-    xdg.configFile."nvim" = {
-        source = ./config/nvim;
-        recursive = true;
-    };
-
-    # Global clangd configuration (applies to all projects, avoids per-folder .clangd files)
+    # Dotfiles
+    xdg.configFile."kitty" = { source = ./config/kitty; recursive = true; };
+    xdg.configFile."ghostty" = { source = ./config/ghostty; recursive = true; };
+    xdg.configFile."nvim" = { source = ./config/nvim; recursive = true; };
     xdg.configFile."clangd/config.yaml".source = ./config/clangd/config.yaml;
+    xdg.configFile."fastfetch" = { source = ./config/fastfetch; recursive = true; };
+    
+    # Hyprland
+    xdg.configFile."hypr" = { source = ./config/hypr; recursive = true; };
 
-    xdg.configFile."fastfetch" = {
-        source = ./config/fastfetch;
-        recursive = true;
-    };
-
-    # ═══════════════════════════════════════════════════════════════════════════
-    # 🏠 ENVIRONMENT VARIABLES
-    # ═══════════════════════════════════════════════════════════════════════════
+    # Env variables
     home.sessionVariables = {
             EDITOR = "nvim";
             VISUAL = "nvim";
             NPM_CONFIG_PREFIX = "$HOME/.npm-global";
     };
-    home.sessionPath = [
-            "$HOME/.npm-global/bin"
-        ];
-    }
+    home.sessionPath = [ "$HOME/.npm-global/bin" ];
+}
 

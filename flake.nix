@@ -13,18 +13,15 @@
   let
     system = "x86_64-linux";
     pkgs = nixpkgs.legacyPackages.${system};
-
   in
   {
-    # ═══════════════════════════════════════════════════════════════════
-    # 🏠 HOME MANAGER STANDALONE
-    # ═══════════════════════════════════════════════════════════════════
+    # Home Manager Standalone
     homeConfigurations."harry" = home-manager.lib.homeManagerConfiguration {
       inherit pkgs;
       modules = [ ./home.nix ];
     };
 
-    # Package por defecto para instalación fácil
+    # Default package
     packages.${system}.default = home-manager.packages.${system}.default;
   };
 }

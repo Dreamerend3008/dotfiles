@@ -1,247 +1,86 @@
-# 🏠 Harry's Dotfiles - Multi-Sistema
+# 🏠 Harry's Dotfiles
 
-## 📂 Estructura
+## 📂 Structure
 
 ```
 ~/dotfiles/
-├── flake.nix              # Define las configuraciones para cada sistema
-├── configuration.nix      # Configuración de sistema NixOS (solo NixOS)
-├── home.nix              # Configuración de usuario (todos los sistemas)
+├── flake.nix              # Multi-system configurations
+├── home.nix               # User configurations (all systems)
 ├── README.md
 └── config/
     ├── nvim/
+    ├── hypr/              # Hyprland configuration
     ├── starship.toml
     └── fastfetch/
 ```
 
-## 🚀 Instalación
+## 🚀 Installation
 
-### 📦 Paso 1: Instalar Nix
+### 1. Install Nix
 
-#### En Ubuntu o WSL:
 ```bash
 sh <(curl -L https://nixos.org/nix/install) --daemon
-# Para WSL: sh <(curl -L https://nixos.org/nix/install) --no-daemon
+# For WSL use: sh <(curl -L https://nixos.org/nix/install) --no-daemon
 ```
 
-### ⚙️  Paso 2: Habilitar Flakes
+### 2. Enable Flakes
 
 ```bash
 mkdir -p ~/.config/nix
 echo "experimental-features = nix-command flakes" >> ~/.config/nix/nix.conf
 ```
+*Restart your terminal after this step.*
 
-**Reinicia tu terminal** después de este paso.
-
-### 📥 Paso 3: Clonar dotfiles
+### 3. Clone dotfiles
 
 ```bash
 git clone https://github.com/YOUR_USERNAME/dotfiles ~/dotfiles
 cd ~/dotfiles
 ```
 
-### 🔧 Paso 4: Configurar según tu sistema
+### 4. Configure
 
-#### ⚠️ **IMPORTANTE**: Edita estos archivos primero
+- In `flake.nix`: Change `"harry"` to your username.
+- In `home.nix`: Update `home.username` and `home.homeDirectory`.
 
-1. **En `flake.nix`**: Cambia `"harry"` por tu username
-2. **En `home.nix`**: Cambia `home.username` y `home.homeDirectory`
+### 5. Apply config
 
-### 🎮 Paso 5: Aplicar configuración
-
-#### **En Ubuntu o WSL:**
 ```bash
-# Primera vez
+# First time
 nix run . -- switch --flake . -b backup
 
-# Setear Zsh como shell por defecto
+# Set Zsh as default shell
 echo "$HOME/.nix-profile/bin/zsh" | sudo tee -a /etc/shells
 chsh -s "$HOME/.nix-profile/bin/zsh"
-
-# Reinicia terminal
 exec zsh
 ```
 
-### 🧠 Neovim: requisitos (externos a Nix)
+## 🧠 Neovim Dependencies
 
-Los binarios que usa `config/nvim` (LSP/formatters/compilador) se manejan **a nivel sistema** (apt/pacman/dnf/etc.) o con herramientas como mise/asdf.
-
-Mínimo para C++ (fix de `iostream` y `<bits/stdc++.h>`):
-- `g++` (headers de libstdc++)
+Tools used by `config/nvim` (LSP, formatters, etc.) should be installed via your system package manager (pacman, apt, etc.).
+Minimum for C++:
+- `g++` 
 - `clangd`
 
-Verifica que Neovim los ve en `PATH`:
-```bash
-command -v g++
-command -v clangd
-```
-(En Neovim: `:echo exepath('g++')` y `:echo exepath('clangd')`)
+## 📖 Daily Use
 
-Ejemplo en Ubuntu/WSL:
-```bash
-sudo apt update
-sudo apt install -y g++ clangd clang-format
-```
+- `update`: Automatically detects and applies changes (Home Manager or NixOS).
+- `ez`: Opens `home.nix` in Neovim.
+- `update-home`: Updates only Home Manager.
 
-#### Usar estos dotfiles **sin Nix** (symlinks)
-Si Nix te está dando problemas y quieres manejar Neovim “system-wise”, puedes linkear los configs:
-```bash
-mkdir -p ~/.config
-ln -snf ~/dotfiles/config/nvim ~/.config/nvim
-ln -snf ~/dotfiles/config/clangd ~/.config/clangd
-```
-Luego en Neovim:
-- `:Lazy sync`
-- reinicia `nvim`
-
-#### Usar con Nix / Home Manager
-Luego aplica los dotfiles:
-```bash
-cd ~/dotfiles
-update   # o: nix run . -- switch --flake . -b backup
-```
-
----
-
-## 📖 Uso Diario
-
-### 🔄 Actualizar configuración
-
-**El alias `update` detecta automáticamente tu sistema:**
+## 🔄 Syncing
 
 ```bash
-# En cualquier sistema, solo escribe:
-update
-
-# En Ubuntu/WSL: hace 'home-manager switch'
-```
-
-**O usa los comandos específicos:**
-
-```bash
-update-home      # Solo actualiza Home Manager
-```
-
-### ✏️  Editar configuración
-
-```bash
-ez               # Abre home.nix en Neovim
-```
-
-Después de editar:
-```bash
-update
-```
-
-### 🔍 Buscar paquetes
-
-```bash
-nix search nixpkgs <nombre-paquete>
-# O visita: https://search.nixos.org/packages
-```
-
----
-
-## 🎯 Comandos según el Sistema
-
-### En Ubuntu/WSL
-
-```bash
-# Actualizar configuración
-home-manager switch --flake ~/dotfiles
-# o:
-update
-
-# Garbage collection
-nix-collect-garbage -d
-```
-
----
-
-## 🔧 Diferencias Clave
-
-### ¿Qué va en cada archivo?
-
-| Archivo | Propósito | Sistemas |
-|---------|-----------|----------|
-| `home.nix` | Paquetes y configs de usuario | **Todos** |
-| `configuration.nix` | Sistema operativo, servicios, bootloader | **Solo NixOS** |
-| `flake.nix` | Orquesta todo | **Todos** |
-
-### ¿Qué hace cada comando?
-
-| Comando | Ubuntu/WSL | NixOS |
-|---------|------------|-------|
-| `update` | Actualiza Home Manager | Actualiza sistema + Home |
-| `update-home` | Actualiza Home Manager | Solo Home Manager |
-| `update-system` | ❌ No aplica | Solo sistema NixOS |
-
----
-
-## 🔄 Sincronizar entre máquinas
-
-```bash
-# En la máquina donde hiciste cambios:
 cd ~/dotfiles
 git add .
-git commit -m "Added new package"
+git commit -m "Update"
 git push
-
-# En otra máquina:
-cd ~/dotfiles
-git pull
-update
+# On other machine: git pull && update
 ```
-
----
 
 ## 🆘 Troubleshooting
 
-### "zsh: command not found: home-manager"
-
-```bash
-# Asegúrate de que Nix esté en tu PATH
-source ~/.nix-profile/etc/profile.d/nix.sh
-```
-
-### "Permission denied" en NixOS
-
-Usa `sudo` para comandos del sistema:
-```bash
-sudo nixos-rebuild switch --flake ~/dotfiles
-```
-
-### Los iconos no se ven en WSL
-
-Instala una Nerd Font en Windows Terminal (como JetBrainsMono Nerd Font).
-
-### Conflicto con ~/.zshrc existente
-
-Home Manager crea su propio `.zshrc`. Si tienes uno, renómbralo:
-```bash
-mv ~/.zshrc ~/.zshrc.backup
-```
-
----
-
-## 🌟 Ventajas de esta configuración
-
-✅ **Un solo repositorio** para todos tus sistemas
-✅ **Reproducible**: Misma config en cualquier máquina
-✅ **Declarativo**: Todo está en archivos de texto
-✅ **Versionado**: Git controla todos los cambios
-✅ **Rollback fácil**: Vuelve a versiones anteriores con git
-✅ **No más scripts de instalación**: Nix hace todo
-
----
-
-## 📚 Recursos
-
-- [Nix Pills](https://nixos.org/guides/nix-pills/)
-- [Home Manager Manual](https://nix-community.github.io/home-manager/)
-- [NixOS Manual](https://nixos.org/manual/nixos/stable/)
-- [Nixpkgs Search](https://search.nixos.org/packages)
-
----
-
-Made with ❤️ and Nix
+- **zsh: command not found: home-manager**: `source ~/.nix-profile/etc/profile.d/nix.sh`
+- **Permission denied**: Use `sudo` if applying to a NixOS system.
+- **Icons missing**: Install a Nerd Font.
+- **~/.zshrc conflict**: `mv ~/.zshrc ~/.zshrc.backup`
