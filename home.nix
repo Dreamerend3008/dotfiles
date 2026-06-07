@@ -119,7 +119,11 @@
     xdg.configFile."fastfetch" = { source = ./config/fastfetch; recursive = true; };
     
     # Hyprland
-    xdg.configFile."hypr" = { source = ./config/hypr; recursive = true; };
+    xdg.configFile."hypr" = { 
+        source = ./config/hypr; 
+        recursive = true; 
+        onChange = "hyprctl reload || true";
+    };
 
     # Env variables
     home.sessionVariables = {
