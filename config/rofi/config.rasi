@@ -1,0 +1,13 @@
+configuration {
+    modi: "drun,run,window";
+    show-icons: true;
+    icon-theme: "Papirus-Dark"; /* Change if using a different icon theme */
+    font: "Fira Sans 12";
+    drun-display-format: "{icon} {name}";
+    display-drun: "   Apps ";
+    display-run: "   Run ";
+    display-window: " 﩯  Window";
+    matching: "fuzzy";
+}
+
+@theme "catppuccin-mocha"

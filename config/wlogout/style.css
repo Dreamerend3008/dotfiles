@@ -1,0 +1,92 @@
+/* ============================================================================
+ * Wlogout — Catppuccin Mocha Theme
+ * Color reference: https://catppuccin.com/palette
+ *
+ *   base:     #1e1e2e    surface0: #313244    surface1: #45475a
+ *   text:     #cdd6f4    subtext0: #a6adc8    overlay0: #6c7086
+ *   mauve:    #cba6f7    peach:    #fab387    blue:     #89b4fa
+ *   green:    #a6e3a1    red:      #f38ba8    teal:     #94e2d5
+ * ============================================================================ */
+
+/* --- Global / Window ------------------------------------------------------- */
+window {
+    font-family: "Fira Sans", "Inter", sans-serif;
+    font-size: 14px;
+    color: #cdd6f4;                               /* text */
+    background-color: rgba(30, 30, 46, 0.85);     /* base @ 85% opacity */
+}
+
+/* --- Button Grid ----------------------------------------------------------- */
+button {
+    background-color: #313244;                     /* surface0 */
+    color: #cdd6f4;                                /* text */
+    border: 2px solid transparent;
+    border-radius: 12px;
+    margin: 12px;
+    padding: 0;
+    outline: none;
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: 25%;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+    transition: all 0.25s ease-in-out;
+}
+
+button:hover {
+    background-color: #45475a;                     /* surface1 */
+}
+
+button:focus {
+    background-color: #45475a;
+    outline: none;
+}
+
+/* --- Per-button accent colors on hover ------------------------------------- */
+
+/* Lock — Mauve */
+#lock:hover {
+    background-color: rgba(203, 166, 247, 0.15);
+    border-color: #cba6f7;
+    color: #cba6f7;
+    box-shadow: 0 4px 20px rgba(203, 166, 247, 0.3);
+}
+
+/* Logout — Peach */
+#logout:hover {
+    background-color: rgba(250, 179, 135, 0.15);
+    border-color: #fab387;
+    color: #fab387;
+    box-shadow: 0 4px 20px rgba(250, 179, 135, 0.3);
+}
+
+/* Suspend — Blue */
+#suspend:hover {
+    background-color: rgba(137, 180, 250, 0.15);
+    border-color: #89b4fa;
+    color: #89b4fa;
+    box-shadow: 0 4px 20px rgba(137, 180, 250, 0.3);
+}
+
+/* Reboot — Green */
+#reboot:hover {
+    background-color: rgba(166, 227, 161, 0.15);
+    border-color: #a6e3a1;
+    color: #a6e3a1;
+    box-shadow: 0 4px 20px rgba(166, 227, 161, 0.3);
+}
+
+/* Shutdown — Red */
+#shutdown:hover {
+    background-color: rgba(243, 139, 168, 0.15);
+    border-color: #f38ba8;
+    color: #f38ba8;
+    box-shadow: 0 4px 20px rgba(243, 139, 168, 0.3);
+}
+
+/* Hibernate — Teal */
+#hibernate:hover {
+    background-color: rgba(148, 226, 213, 0.15);
+    border-color: #94e2d5;
+    color: #94e2d5;
+    box-shadow: 0 4px 20px rgba(148, 226, 213, 0.3);
+}

@@ -21,6 +21,13 @@
         # utilities
         fastfetch curl wget unzip jq ponysay zip
         
+        # Desktop / Hyprland
+        # NOTE: Hyprland tools (waybar, rofi, dunst, hyprlock, hypridle, swww,
+        # hyprpaper, grim, slurp, wl-clipboard, cliphist, wlogout) are provided
+        # by CachyOS system packages. Nix is only used as a dotfile manager.
+        # Install them via: pacman -S waybar rofi-wayland dunst hyprlock hypridle
+        #                   hyprpaper grim slurp wl-clipboard cliphist wlogout
+        
         # python
         python311 # test pyenv
         
@@ -70,15 +77,13 @@
           eval "$(starship init zsh)"
           eval "$(zoxide init zsh)"
 
-          export LD_LIBRARY_PATH="${pkgs.stdenv.cc.cc.lib}/lib:${pkgs.zlib}/lib:$LD_LIBRARY_PATH"
-
           # Free memory for CP
           ulimit -s 1048576
           
           # Custom Functions
           runcpp() {
             if [ -z "$1" ]; then echo "Usage: runcpp <filename.cpp>"; return 1; fi
-            g++ -std=c++17 -Wall "$1" -o "''${1%.*}" && ./"''${1%.*}"
+            g++ -std=c++17 -Wall "$1" -o "''${1%.*}" && env LD_LIBRARY_PATH="${pkgs.stdenv.cc.cc.lib}/lib:${pkgs.zlib}/lib:$LD_LIBRARY_PATH" ./"''${1%.*}"
           }
 
           tmpl(){
@@ -117,12 +122,16 @@
     xdg.configFile."nvim" = { source = ./config/nvim; recursive = true; };
     xdg.configFile."clangd/config.yaml".source = ./config/clangd/config.yaml;
     xdg.configFile."fastfetch" = { source = ./config/fastfetch; recursive = true; };
+    xdg.configFile."waybar" = { source = ./config/waybar; recursive = true; };
+    xdg.configFile."rofi" = { source = ./config/rofi; recursive = true; };
+    xdg.configFile."dunst" = { source = ./config/dunst; recursive = true; };
+    xdg.configFile."wlogout" = { source = ./config/wlogout; recursive = true; };
     
     # Hyprland
     xdg.configFile."hypr" = { 
         source = ./config/hypr; 
         recursive = true; 
-        onChange = "hyprctl reload || true";
+        onChange = "env -u LD_LIBRARY_PATH /usr/bin/hyprctl reload || true";
     };
 
     # Env variables
