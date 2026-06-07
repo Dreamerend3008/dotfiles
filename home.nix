@@ -4,6 +4,7 @@
     home.username = "harry";
     home.homeDirectory = "/home/harry";
     home.stateVersion = "24.05";
+    news.display = "silent";
 
     programs.home-manager.enable = true;
 
