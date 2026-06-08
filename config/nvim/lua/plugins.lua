@@ -129,7 +129,61 @@ require("lazy").setup({
   -- │ 🧭 NAVIGATION / UI                                                        │
   -- ╰─────────────────────────────────────────────────────────────────────────╯
   { "nvim-tree/nvim-web-devicons", lazy = true },
-  { "folke/which-key.nvim", event = "VeryLazy", config = true },
+  {
+    "folke/which-key.nvim",
+    event = "VeryLazy",
+    config = function()
+      local wk = require("which-key")
+      wk.setup({})
+      -- Support for both which-key v3 (wk.add) and v2 (wk.register)
+      if wk.add then
+        wk.add({
+          { "<leader>n", group = "Notes / Obsidian" },
+        })
+      elseif wk.register then
+        wk.register({
+          n = { name = "Notes / Obsidian" }
+        }, { prefix = "<leader>" })
+      end
+    end,
+  },
+  {
+    "folke/snacks.nvim",
+    priority = 1000,
+    lazy = false,
+    opts = {
+      image = {
+        enabled = true,
+        resolve = function(file, src)
+          -- Let snacks handle absolute paths or web URLs directly
+          if src:match("^https?://") or src:match("^/") then
+            return nil
+          end
+          
+          local file_dir = vim.fs.dirname(file)
+          local candidates = {
+            file_dir .. "/" .. src,
+            file_dir .. "/attachments/" .. src,
+            file_dir .. "/images/" .. src,
+            file_dir .. "/assets/" .. src,
+            vim.fn.expand("~/Notes/" .. src),
+            vim.fn.expand("~/Notes/attachments/" .. src),
+            vim.fn.expand("~/Notes/images/" .. src),
+            vim.fn.expand("~/Notes/assets/" .. src),
+            vim.fn.expand("~/vaults/work/" .. src),
+            vim.fn.expand("~/vaults/work/attachments/" .. src),
+          }
+          
+          for _, path in ipairs(candidates) do
+            if vim.fn.filereadable(path) == 1 then
+              return path
+            end
+          end
+          return nil
+        end,
+      },
+    },
+  },
   {
     "nvim-lualine/lualine.nvim",
     dependencies = { "nvim-tree/nvim-web-devicons" },
@@ -187,4 +241,41 @@ require("lazy").setup({
         })
     end,
   },
+  {
+    "epwalsh/obsidian.nvim",
+    version = "*",
+    lazy = true,
+    ft = "markdown",
+    dependencies = {
+      "nvim-lua/plenary.nvim",
+    },
+    opts = {
+      legacy_commands = false,
+      workspaces = {
+        {
+          name = "harry-notes",
+          path = "~/Notes/",
+        },
+        {
+          name = "work",
+          path = "~/vaults/work",
+        },
+      },
+      note_id_func = function(title)
+        if title ~= nil then
+          return title:gsub(" ", "-"):gsub("[^A-Za-z0-9-_]", ""):lower()
+        else
+          local suffix = ""
+          for _ = 1, 4 do
+            suffix = suffix .. string.char(math.random(65, 90))
+          end
+          return tostring(os.time()) .. "-" .. suffix
+        end
+      end,
+      link = {
+        style = "wiki",
+      },
+    },
+  },
 })
+

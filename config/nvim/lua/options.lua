@@ -86,6 +86,16 @@ vim.api.nvim_create_autocmd("FileType", {
 })
 
 -- ┌────────────────────────────────────────────────────────────────────────────┐
+-- │ Markdown settings (for obsidian.nvim)                                      │
+-- └────────────────────────────────────────────────────────────────────────────┘
+vim.api.nvim_create_autocmd("FileType", {
+  pattern = { "markdown" },
+  callback = function()
+    vim.opt_local.conceallevel = 2
+  end,
+})
+
+-- ┌────────────────────────────────────────────────────────────────────────────┐
 -- │ Transparent popup menu (for completion)                                     │
 -- └────────────────────────────────────────────────────────────────────────────┘
 vim.cmd("highlight Pmenu guibg=NONE ctermbg=NONE")

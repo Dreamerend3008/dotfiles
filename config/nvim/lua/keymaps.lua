@@ -77,3 +77,30 @@ keymap("n", "<leader>fh", "<cmd>Telescope help_tags<CR>", { desc = "Help tags" }
 
 keymap("n", "<leader>o", "<cmd>Oil<CR>", { desc = "File explorer" })
 keymap("n", "<leader>tt", "<cmd>ToggleTerm<CR>", { desc = "Toggle terminal" })
+
+-- ┌────────────────────────────────────────────────────────────────────────────┐
+-- │ Obsidian / Notes Keymaps                                                    │
+-- └────────────────────────────────────────────────────────────────────────────┘
+keymap("n", "<leader>nn", function()
+  local title = vim.fn.input("Enter note title (optional): ")
+  if title == nil then
+    return
+  end
+  if title == "" then
+    title = nil
+  end
+  require("obsidian.actions").new(title, function(note)
+    note:open({ sync = true })
+  end)
+end, { desc = "New note" })
+keymap("n", "<leader>ns", "<cmd>Obsidian search<CR>", { desc = "Search notes" })
+keymap("n", "<leader>nf", "<cmd>Obsidian quick_switch<CR>", { desc = "Find/Quick switch note" })
+keymap("n", "<leader>nd", "<cmd>Obsidian today<CR>", { desc = "Daily note" })
+keymap("n", "<leader>ny", "<cmd>Obsidian yesterday<CR>", { desc = "Yesterday's note" })
+keymap("n", "<leader>nt", "<cmd>Obsidian template<CR>", { desc = "Insert template" })
+keymap("n", "<leader>nc", "<cmd>Obsidian toggle_checkbox<CR>", { desc = "Toggle checkbox" })
+keymap("n", "<leader>nb", "<cmd>Obsidian backlinks<CR>", { desc = "Show backlinks" })
+keymap("n", "<leader>no", "<cmd>Obsidian open<CR>", { desc = "Open in Obsidian app" })
+keymap("v", "<leader>nl", ":Obsidian link<CR>", { desc = "Link selection to note" })
+keymap("v", "<leader>nln", ":Obsidian link_new<CR>", { desc = "Link selection to new note" })
+
