@@ -246,6 +246,7 @@ require("lazy").setup({
     version = "*",
     lazy = true,
     ft = "markdown",
+    cmd = { "Obsidian" },
     dependencies = {
       "nvim-lua/plenary.nvim",
     },

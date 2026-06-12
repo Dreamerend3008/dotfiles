@@ -89,6 +89,14 @@ keymap("n", "<leader>nn", function()
   if title == "" then
     title = nil
   end
+  -- Ensure obsidian.nvim is loaded
+  local ok, obsidian = pcall(require, "obsidian")
+  if not ok then
+    local lazy_ok, lazy = pcall(require, "lazy")
+    if lazy_ok then
+      lazy.load({ plugins = { "obsidian.nvim" } })
+    end
+  end
   require("obsidian.actions").new(title, function(note)
     note:open({ sync = true })
   end)
