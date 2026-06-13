@@ -1,0 +1,6 @@
+# Nix build output
+result
+
+# Secrets — NEVER commit API keys
+.secrets
+auth.json

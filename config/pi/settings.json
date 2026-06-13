@@ -1,0 +1,4 @@
+{
+  "defaultProvider": "azure-foundry",
+  "defaultModel": "gpt-5.4-mini"
+}

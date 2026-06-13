@@ -72,6 +72,9 @@
           # Nix env (standalone)
           if [ -e "$HOME/.nix-profile/etc/profile.d/nix.sh" ]; then . "$HOME/.nix-profile/etc/profile.d/nix.sh"; fi
 
+          # Load secrets (API keys, tokens) — file is gitignored
+          if [ -f "$HOME/.secrets" ]; then source "$HOME/.secrets"; fi
+
           fastfetch -c ~/.config/fastfetch/config.jsonc
           
           eval "$(starship init zsh)"
@@ -133,6 +136,30 @@
         recursive = true; 
         onChange = "env -u LD_LIBRARY_PATH /usr/bin/hyprctl reload || true";
     };
+
+    # Pi (terminal AI agent)
+    home.file.".pi/agent/models.json".source   = ./config/pi/models.json;
+    home.file.".pi/agent/settings.json".source  = ./config/pi/settings.json;
+
+    # Generate auth.json at activation from env var (keeps key out of repo)
+    home.activation.piAuth = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
+      PI_DIR="$HOME/.pi/agent"
+      mkdir -p "$PI_DIR"
+      if [ -f "$HOME/.secrets" ]; then
+        . "$HOME/.secrets"
+      fi
+      if [ -n "$AZURE_OPENAI_API_KEY" ]; then
+        cat > "$PI_DIR/auth.json" <<EOF
+{
+  "azure-foundry": {
+    "type": "api_key",
+    "key": "$AZURE_OPENAI_API_KEY"
+  }
+}
+EOF
+        chmod 600 "$PI_DIR/auth.json"
+      fi
+    '';
 
     # Env variables
     home.sessionVariables = {
