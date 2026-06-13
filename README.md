@@ -40,6 +40,9 @@
     ├── ghostty/           # Ghostty terminal
     ├── fastfetch/         # System info
     ├── clangd/            # C++ LSP
+    ├── pi/                # Pi terminal AI agent
+    │   ├── models.json        # Provider & model definitions
+    │   └── settings.json      # Default provider/model
     └── starship.toml      # Prompt theme
 ```
 
@@ -49,6 +52,7 @@
 - **CachyOS packages** for all Hyprland-related tools (waybar, rofi, dunst, etc.)
 - **Modular configs** — each file is self-contained and can be edited independently
 - **Catppuccin Mocha** theme across all components
+- **Secrets stay local** — API keys loaded from `~/.secrets` (gitignored), never committed
 
 ## 📦 CachyOS Packages Required
 
@@ -93,6 +97,20 @@ git clone https://github.com/YOUR_USERNAME/dotfiles ~/dotfiles
 cd ~/dotfiles
 ```
 
+### 3.5 Set up secrets (for Pi agent)
+
+Create a `~/.secrets` file with your API keys — this file is **gitignored** and never committed:
+
+```bash
+cat > ~/.secrets << 'EOF'
+# API Keys — DO NOT COMMIT
+export AZURE_OPENAI_API_KEY="your-azure-api-key-here"
+EOF
+chmod 600 ~/.secrets
+```
+
+Home Manager will automatically generate `~/.pi/agent/auth.json` from this env var on `update`.
+
 ### 4. Configure
 
 - In `flake.nix`: Change `"harry"` to your username.
@@ -109,6 +127,19 @@ echo "$HOME/.nix-profile/bin/zsh" | sudo tee -a /etc/shells
 chsh -s "$HOME/.nix-profile/bin/zsh"
 exec zsh
 ```
+
+## 🤖 Pi Terminal Agent
+
+Pi is configured to use **Azure AI Foundry** with these models:
+
+| Model | ID | Use case |
+|-------|----|----------|
+| GPT-5.4 Mini | `gpt-5.4-mini` | Fast, lightweight tasks (default) |
+| GPT-5.4 | `gpt-5.4` | Complex reasoning tasks |
+
+Switch models inside Pi with `/model azure-foundry/gpt-5.4`.
+
+Config files are deployed by Home Manager to `~/.pi/agent/`. The API key is loaded from `~/.secrets` → never touches git.
 
 ## 🧠 Neovim Dependencies
 

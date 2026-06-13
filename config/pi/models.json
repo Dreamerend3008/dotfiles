@@ -11,6 +11,13 @@
           "name": "GPT-5.4 Mini (Azure Foundry)",
           "contextWindow": 1047576,
           "maxTokens": 16384
+        },
+        {
+          "id": "gpt-5.4",
+          "name": "GPT-5.4 (Azure Foundry)",
+          "contextWindow": 1047576,
+          "maxTokens": 16384,
+          "reasoning": true
         }
       ]
     }
