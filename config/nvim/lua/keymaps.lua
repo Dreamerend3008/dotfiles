@@ -81,7 +81,46 @@ keymap("n", "<leader>tt", "<cmd>ToggleTerm<CR>", { desc = "Toggle terminal" })
 -- ┌────────────────────────────────────────────────────────────────────────────┐
 -- │ Obsidian / Notes Keymaps                                                    │
 -- └────────────────────────────────────────────────────────────────────────────┘
-keymap("n", "<leader>nn", "<cmd>Obsidian new<CR>", { desc = "New note" })
+keymap("n", "<leader>nn", function()
+  -- Ensure obsidian.nvim is loaded
+  local ok, obsidian = pcall(require, "obsidian")
+  if not ok then
+    local lazy_ok, lazy = pcall(require, "lazy")
+    if lazy_ok then
+      lazy.load({ plugins = { "obsidian.nvim" } })
+    end
+  end
+
+  local title = vim.fn.input("Enter note title (optional): ")
+  if title == nil then
+    return
+  end
+  if title == "" then
+    title = nil
+  end
+
+  local actions_ok, actions = pcall(require, "obsidian.actions")
+  if actions_ok and actions.new then
+    actions.new(title, function(note)
+      note:open({ sync = true })
+    end)
+  else
+    -- Fallback for older versions of obsidian.nvim
+    local client_ok, client = pcall(require("obsidian").get_client)
+    if client_ok and client and client.create_note and client.open_note then
+      local note = client:create_note({ title = title })
+      client:open_note(note, { sync = true })
+    else
+      -- Command-line fallback
+      local cmd = title and ("ObsidianNew " .. title) or "ObsidianNew"
+      local success = pcall(vim.cmd, cmd)
+      if not success then
+        cmd = title and ("Obsidian new " .. title) or "Obsidian new"
+        pcall(vim.cmd, cmd)
+      end
+    end
+  end
+end, { desc = "New note" })
 keymap("n", "<leader>ns", "<cmd>Obsidian search<CR>", { desc = "Search notes" })
 keymap("n", "<leader>nf", "<cmd>Obsidian quick_switch<CR>", { desc = "Find/Quick switch note" })
 keymap("n", "<leader>nd", "<cmd>Obsidian today<CR>", { desc = "Daily note" })
