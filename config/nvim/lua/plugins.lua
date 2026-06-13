@@ -221,24 +221,36 @@ require("lazy").setup({
 
     {
     "nvim-treesitter/nvim-treesitter",
-    branch = "master",
+    branch = "main",
     build = ":TSUpdate",
     config = function()
-      local ok, configs = pcall(require, "nvim-treesitter.configs")
+      local ok, ts = pcall(require, "nvim-treesitter")
       if not ok then
-        vim.notify("nvim-treesitter not available (run :Lazy sync and restart)", vim.log.levels.WARN)
         return
       end
 
-      configs.setup({
-            ensure_installed = {
-            "lua", "vim", "vimdoc", "query", "nix", "bash",
-          "c", "cpp", "python", "javascript", "typescript", "json", "markdown",
-        },
-        auto_install = false,
-        highlight = { enable = true },
-        indent = { enable = true, disable = { "cpp", "c" } },
-        })
+      ts.setup({})
+
+      -- Install parsers asynchronously
+      ts.install({
+        "lua", "vim", "vimdoc", "query", "nix", "bash",
+        "c", "cpp", "python", "javascript", "typescript", "json", "markdown",
+      })
+
+      -- Enable Treesitter highlight & indent via autocommands
+      vim.api.nvim_create_autocmd("FileType", {
+        group = vim.api.nvim_create_augroup("nvim-treesitter-setup", { clear = true }),
+        callback = function(args)
+          -- Start built-in treesitter highlighting
+          pcall(vim.treesitter.start)
+
+          -- Indentation (ignoring cpp and c as in user's config)
+          local ft = vim.bo[args.buf].filetype
+          if ft ~= "cpp" and ft ~= "c" then
+            vim.bo[args.buf].indentexpr = "v:lua.require'nvim-treesitter'.indentexpr()"
+          end
+        end,
+      })
     end,
   },
 
