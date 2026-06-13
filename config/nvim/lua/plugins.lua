@@ -241,7 +241,10 @@ require("lazy").setup({
         })
     end,
   },
-  {
+
+-- Obsidian plugin
+
+{
     "obsidian-nvim/obsidian.nvim",
     version = "*",
     lazy = true,
@@ -256,10 +259,6 @@ require("lazy").setup({
         {
           name = "harry-notes",
           path = "~/Notes/",
-        },
-        {
-          name = "work",
-          path = "~/vaults/work",
         },
       },
       note_id_func = function(title)
