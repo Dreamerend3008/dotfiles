@@ -140,6 +140,7 @@
     home.file.".pi/agent/models.json".source = ./config/pi/models.json;
     home.file.".pi/agent/settings.json".source = ./config/pi/settings.json;
     home.file.".pi/agent/keybindings.json".source = ./config/pi/keybindings.json;
+    home.file.".pi/agent/extensions/model-cost-extension.ts".source = ./config/pi/model-cost-extension.ts;
 
     # Generate auth.json at activation from env var (keeps key out of repo)
     home.activation.piAuth = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
