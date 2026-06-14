@@ -2,6 +2,7 @@
   "defaultProvider": "azure-foundry",
   "defaultModel": "gpt-5.4-mini",
   "defaultThinkingLevel": "low",
+  "theme": "bearded-coffee-night",
   "thinkingBudgets": {
     "minimal": 512,
     "low": 2048,
@@ -25,7 +26,5 @@
       "outputUsdPer1M": 4.5
     }
   },
-  "extensions": [
-    "~/.pi/agent/extensions/model-cost-extension.ts"
-  ]
+  "lastChangelogVersion": "0.79.3"
 }

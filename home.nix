@@ -137,10 +137,18 @@
     };
 
     # Pi (terminal AI agent)
+    # settings.json is linked directly to the dotfiles repo so changes made from
+    # Pi's /settings screen persist across restarts and also stay in ~/dotfiles.
+    # Keep the selected theme in settings.json authoritative so startup doesn't
+    # fall back to a different default theme and make the borders look darker.
     home.file.".pi/agent/models.json".source = ./config/pi/models.json;
-    home.file.".pi/agent/settings.json".source = ./config/pi/settings.json;
+    home.file.".pi/agent/settings.json".source = config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/dotfiles/config/pi/settings.json";
     home.file.".pi/agent/keybindings.json".source = ./config/pi/keybindings.json;
+    home.file.".pi/agent/extensions/web-search-extension.ts".source = ./config/pi/web-search-extension.ts;
     home.file.".pi/agent/extensions/model-cost-extension.ts".source = ./config/pi/model-cost-extension.ts;
+    home.file.".pi/agent/themes/cachyos-neon.json".source = ./config/pi/themes/cachyos-neon.json;
+    home.file.".pi/agent/themes/bearded-coffee-night.json".source = ./config/pi/themes/bearded-coffee-night.json;
+    home.file.".pi/agent/themes/bearded-coffee-light.json".source = ./config/pi/themes/bearded-coffee-light.json;
 
     # Generate auth.json at activation from env var (keeps key out of repo)
     home.activation.piAuth = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
