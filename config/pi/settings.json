@@ -1,4 +1,27 @@
 {
   "defaultProvider": "azure-foundry",
-  "defaultModel": "gpt-5.4-mini"
+  "defaultModel": "gpt-5.4-mini",
+  "defaultThinkingLevel": "low",
+  "thinkingBudgets": {
+    "minimal": 512,
+    "low": 2048,
+    "medium": 4096,
+    "high": 8192,
+    "xhigh": 16384
+  },
+  "enabledModels": [
+    "gpt-5.4-mini"
+  ],
+  "modelPricing": {
+    "gpt-5.4": {
+      "inputUsdPer1M": 2.5,
+      "cachedInputUsdPer1M": 0.25,
+      "outputUsdPer1M": 15
+    },
+    "gpt-5.4-mini": {
+      "inputUsdPer1M": 0.75,
+      "cachedInputUsdPer1M": 0.08,
+      "outputUsdPer1M": 4.5
+    }
+  }
 }

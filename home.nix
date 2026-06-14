@@ -137,8 +137,9 @@
     };
 
     # Pi (terminal AI agent)
-    home.file.".pi/agent/models.json".source   = ./config/pi/models.json;
-    home.file.".pi/agent/settings.json".source  = ./config/pi/settings.json;
+    home.file.".pi/agent/models.json".source = ./config/pi/models.json;
+    home.file.".pi/agent/settings.json".source = ./config/pi/settings.json;
+    home.file.".pi/agent/keybindings.json".source = ./config/pi/keybindings.json;
 
     # Generate auth.json at activation from env var (keeps key out of repo)
     home.activation.piAuth = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
