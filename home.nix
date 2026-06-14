@@ -16,10 +16,9 @@
         # development
         git lazygit tree-sitter gnumake cmake nodejs pkg-config
 
-        # Neovim tooling installed externally
         
         # utilities
-        fastfetch curl wget unzip jq ponysay zip
+        fastfetch curl wget unzip jq ponysay zip sioyek
         
         # Desktop / Hyprland
         # NOTE: Hyprland tools (waybar, rofi, dunst, hyprlock, hypridle, swww,
