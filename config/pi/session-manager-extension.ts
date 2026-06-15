@@ -1,6 +1,6 @@
 import type { ExtensionAPI } from "@earendil-works/pi-coding-agent";
 import { existsSync, readFileSync, readdirSync, unlinkSync } from "node:fs";
-import { dirname, join, basename } from "node:path";
+import { basename, dirname, join } from "node:path";
 import { Type } from "typebox";
 
 type SessionEntry = {
@@ -95,38 +95,25 @@ function formatList(items: Array<ReturnType<typeof summarizeSession>>): string {
 }
 
 export default function sessionManagerExtension(pi: ExtensionAPI) {
-  pi.registerTool({
-    name: "list_sessions",
-    label: "List Sessions",
-    description: "Show saved Pi sessions so they are easier to find, reopen, or clean up later.",
-    promptSnippet: "List saved sessions with their names, timestamps, and file paths.",
-    promptGuidelines: [
-      "Use list_sessions when the user wants to see past chats or find a session to reload later.",
-      "Prefer clear session names and file paths so the user can reopen or delete the right one.",
-    ],
-    parameters: ListParams,
-    async execute() {
+  pi.registerCommand("list-sessions", {
+    description: "List saved Pi sessions with names, timestamps, and file paths.",
+    async execute(ctx) {
       const sessionsDir = getSessionsDir();
       const sessions = walkSessions(sessionsDir).map(summarizeSession).sort((a, b) => (b.lastTimestamp ?? "").localeCompare(a.lastTimestamp ?? ""));
-      return {
-        content: [{ type: "text", text: `Saved sessions under ${sessionsDir}\n\n${formatList(sessions)}` }],
-        details: { sessionsDir, sessions },
-      };
+      const text = `Saved sessions under ${sessionsDir}\n\n${formatList(sessions)}`;
+      ctx.ui.appendMessage({ type: "custom", customType: "session-manager", content: text, display: true, details: { sessionsDir, sessions }, timestamp: new Date().toISOString() } as any);
+      return { content: [{ type: "text", text }], details: { sessionsDir, sessions } };
     },
   });
 
-  pi.registerTool({
-    name: "delete_session",
-    label: "Delete Session",
+  pi.registerCommand("delete-session", {
     description: "Delete a saved Pi session by path.",
-    promptSnippet: "Delete a saved session file when the user asks to clean up old chats.",
-    promptGuidelines: [
-      "Use delete_session only when the user explicitly asks to remove a session.",
-      "Confirm the target path before deleting and report success or failure clearly.",
-    ],
-    parameters: DeleteParams,
-    async execute(_toolCallId, params) {
-      const target = params.sessionFile.startsWith("/") ? params.sessionFile : join(getSessionsDir(), params.sessionFile);
+    async execute(ctx, args: string[]) {
+      const sessionFile = args.join(" ").trim();
+      if (!sessionFile) {
+        return { content: [{ type: "text", text: "Usage: /delete-session <session-file-path>" }] };
+      }
+      const target = sessionFile.startsWith("/") ? sessionFile : join(getSessionsDir(), sessionFile);
       if (!existsSync(target)) {
         return { content: [{ type: "text", text: `Session not found: ${target}` }], details: { target, deleted: false } };
       }
