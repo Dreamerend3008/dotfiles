@@ -147,6 +147,8 @@
     home.file.".pi/agent/extensions/web-search-extension.ts".source = ./config/pi/web-search-extension.ts;
     home.file.".pi/agent/extensions/model-cost-extension.ts".source = ./config/pi/model-cost-extension.ts;
     home.file.".pi/agent/extensions/usage-extension.ts".source = ./config/pi/usage-extension.ts;
+    home.file.".pi/agent/skills" = { source = ./config/pi/skills; recursive = true; };
+    home.file.".pi/agent/prompts" = { source = ./config/pi/prompts; recursive = true; };
     home.file.".pi/agent/themes/cachyos-neon.json".source = ./config/pi/themes/cachyos-neon.json;
     home.file.".pi/agent/themes/bearded-coffee-night.json".source = ./config/pi/themes/bearded-coffee-night.json;
     home.file.".pi/agent/themes/bearded-coffee-light.json".source = ./config/pi/themes/bearded-coffee-light.json;

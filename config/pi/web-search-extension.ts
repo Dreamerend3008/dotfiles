@@ -40,10 +40,15 @@ function decodeDuckDuckGoUrl(url: string): string {
 
 function extractResults(html: string): SearchResult[] {
   const results: SearchResult[] = [];
-  const blockRegex = /<div class="result results_links results_links_deep web-result"[\s\S]*?<\/div>\s*<\/div>\s*<\/div>/g;
-  const blocks = html.match(blockRegex) ?? [];
+  const resultStartRegex = /<div class="result[^"]*web-result[^"]*">/g;
+  const matches = [...html.matchAll(resultStartRegex)];
 
-  for (const block of blocks) {
+  for (let i = 0; i < matches.length; i++) {
+    const start = matches[i].index;
+    if (start == null) continue;
+
+    const end = matches[i + 1]?.index ?? html.length;
+    const block = html.slice(start, end);
     const linkMatch = block.match(/<a[^>]+class="result__a"[^>]+href="([^"]+)"[^>]*>([\s\S]*?)<\/a>/);
     if (!linkMatch) continue;
 
