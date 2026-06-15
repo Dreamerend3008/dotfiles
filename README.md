@@ -2,12 +2,39 @@
 
 Home Manager-based dotfiles for my Arch/CachyOS setup.
 
-## What’s in here
+## At a glance
 
 - `home.nix` is the source of truth for the Home Manager config
 - `flake.nix` only exposes the Home Manager entrypoint
-- `config/` contains the actual dotfiles that Home Manager links into place
+- `config/` contains the dotfiles that Home Manager links into place
 - `cheatSheet.md` has quick keybindings and common commands
+- Pi resources live under `config/pi/` and are linked into `~/.pi/agent/`
+
+## What this repo covers
+
+### Shell and terminal
+- Zsh, Starship, Zoxide, FZF, LSD, Bat, Eza, Ripgrep, FD, Tree, Htop, Btop, Yazi
+- Kitty and Ghostty configs
+- Fastfetch and Clangd config
+- Utility aliases and helper functions in `home.nix`
+
+### Development
+- Git settings and aliases
+- Neovim config
+- Node.js, pkg-config, CMake, GNU Make
+- Python 3.11 and system libraries for local builds
+
+### Desktop / Hyprland
+- Modular Hyprland config under `config/hypr/`
+- Waybar, Rofi, Dunst, Wlogout config files
+- `hyprland.conf` acts as the top-level dispatcher for the modular Hyprland setup
+- System desktop tools are intentionally expected from CachyOS / system packages, not Nix
+
+### Pi terminal agent
+- Model, settings, keybinding, and extension config
+- Prompt, skill, theme, and project-manager resources
+- Out-of-store `settings.json` so Pi changes persist directly back into the repo
+- Activation-time Pi auth generation from `~/.secrets`
 
 ## Repository layout
 
@@ -18,6 +45,10 @@ Home Manager-based dotfiles for my Arch/CachyOS setup.
 ├── README.md
 ├── cheatSheet.md
 └── config/
+    ├── clangd/
+    ├── dunst/
+    ├── fastfetch/
+    ├── ghostty/
     ├── hypr/
     │   ├── hyprland.conf
     │   ├── monitors.conf
@@ -35,17 +66,24 @@ Home Manager-based dotfiles for my Arch/CachyOS setup.
     │   ├── hyprlock.conf
     │   ├── hyprpaper.conf
     │   └── scripts/
-    ├── waybar/
-    ├── rofi/
-    ├── dunst/
-    ├── wlogout/
-    ├── nvim/
     ├── kitty/
-    ├── ghostty/
-    ├── fastfetch/
-    ├── clangd/
+    ├── nvim/
     ├── pi/
-    └── starship.toml
+    │   ├── extensions/
+    │   ├── prompts/
+    │   ├── skills/
+    │   ├── themes/
+    │   ├── project-manager/
+    │   ├── keybindings.json
+    │   ├── models.json
+    │   ├── settings.json
+    │   ├── model-cost-extension.ts
+    │   ├── usage-extension.ts
+    │   └── session-manager-extension.ts
+    ├── rofi/
+    ├── starship.toml
+    ├── waybar/
+    └── wlogout/
 ```
 
 ## Philosophy
@@ -54,6 +92,7 @@ Home Manager-based dotfiles for my Arch/CachyOS setup.
 - Hyprland desktop apps/tools like `waybar`, `rofi`, `dunst`, `hypr*`, `grim`, `slurp`, etc. are expected to come from system/CachyOS packages
 - Configs are modular so each file can be edited independently
 - Secrets stay local in `~/.secrets` and are never committed
+- Keep the README readable by grouping related config instead of listing every file inline
 
 ## Required system packages
 
@@ -136,7 +175,8 @@ Pi is configured through files under `config/pi/` and linked into `~/.pi/agent/`
 - `settings.json` is intentionally linked out-of-store so changes from Pi persist in the repo
 - `models.json` defines the available models
 - `keybindings.json` and the `*-extension.ts` files provide Pi custom actions
-- prompt, skill, and theme resources are also linked from `config/pi/`
+- `project-manager/` adds repo-aware project tooling
+- prompt, skill, and theme resources are linked from `config/pi/`
 
 ## Daily use
 
@@ -154,3 +194,4 @@ Useful shell aliases from `home.nix`:
 - Preserve executable bits for `config/hypr/scripts/*.sh`
 - Keep secrets out of the repo
 - Keep this README in sync with `home.nix` when adding or moving config files
+- If you add new config files under `config/`, wire them in through `home.nix`
