@@ -1,7 +1,7 @@
 {
   "defaultProvider": "azure-foundry",
   "defaultModel": "gpt-5.4",
-  "defaultThinkingLevel": "low",
+  "defaultThinkingLevel": "medium",
   "theme": "bearded-coffee-night",
   "thinkingBudgets": {
     "minimal": 512,
