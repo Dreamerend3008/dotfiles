@@ -1,6 +1,6 @@
 {
   "defaultProvider": "azure-foundry",
-  "defaultModel": "gpt-5.4-mini",
+  "defaultModel": "gpt-5.4",
   "defaultThinkingLevel": "medium",
   "theme": "bearded-coffee-night",
   "thinkingBudgets": {
@@ -36,5 +36,9 @@
       "limitUsd": 20
     }
   },
-  "lastChangelogVersion": "0.79.3"
+  "lastChangelogVersion": "0.79.4",
+  "packages": [
+    "npm:pi-web-access",
+    "npm:context-mode"
+  ]
 }

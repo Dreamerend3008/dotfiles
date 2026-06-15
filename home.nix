@@ -144,10 +144,10 @@
     home.file.".pi/agent/models.json".source = ./config/pi/models.json;
     home.file.".pi/agent/settings.json".source = config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/dotfiles/config/pi/settings.json";
     home.file.".pi/agent/keybindings.json".source = ./config/pi/keybindings.json;
-    home.file.".pi/agent/extensions/web-search-extension.ts".source = ./config/pi/web-search-extension.ts;
     home.file.".pi/agent/extensions/model-cost-extension.ts".source = ./config/pi/model-cost-extension.ts;
     home.file.".pi/agent/extensions/usage-extension.ts".source = ./config/pi/usage-extension.ts;
     home.file.".pi/agent/extensions/session-manager-extension.ts".source = ./config/pi/session-manager-extension.ts;
+    home.file.".pi/agent/extensions/project-manager" = { source = ./config/pi/project-manager; recursive = true; };
     home.file.".pi/agent/skills" = { source = ./config/pi/skills; recursive = true; };
     home.file.".pi/agent/prompts" = { source = ./config/pi/prompts; recursive = true; };
     home.file.".pi/agent/themes/cachyos-neon.json".source = ./config/pi/themes/cachyos-neon.json;
@@ -179,6 +179,7 @@ EOF
             EDITOR = "nvim";
             VISUAL = "nvim";
             NPM_CONFIG_PREFIX = "$HOME/.npm-global";
+            NODE_NO_WARNINGS = "1";
     };
     home.sessionPath = [ "$HOME/.npm-global/bin" ];
 
