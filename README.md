@@ -1,175 +1,156 @@
 # 🏠 Harry's Dotfiles
 
-## 📂 Structure
+Home Manager-based dotfiles for my Arch/CachyOS setup.
 
-```
+## What’s in here
+
+- `home.nix` is the source of truth for the Home Manager config
+- `flake.nix` only exposes the Home Manager entrypoint
+- `config/` contains the actual dotfiles that Home Manager links into place
+- `cheatSheet.md` has quick keybindings and common commands
+
+## Repository layout
+
+```text
 ~/dotfiles/
-├── flake.nix              # Multi-system configurations
-├── home.nix               # User configurations (all systems)
+├── flake.nix
+├── home.nix
 ├── README.md
-├── cheatSheet.md          # Keybindings & commands reference
+├── cheatSheet.md
 └── config/
-    ├── hypr/              # Hyprland configuration (modular)
-    │   ├── hyprland.conf      # Main entry — sources all modules
-    │   ├── monitors.conf      # Monitor layout & resolution
-    │   ├── programs.conf      # Default applications ($terminal, $browser, etc.)
-    │   ├── input.conf         # Keyboard, mouse, touchpad settings
-    │   ├── gestures.conf      # Touchpad gestures (workspace swipe)
-    │   ├── cursor.conf        # Cursor theme & behavior
-    │   ├── autostart.conf     # Startup applications & daemons
-    │   ├── environment.conf   # Environment variables (XDG, toolkit, NVIDIA)
-    │   ├── theme.conf         # Appearance (gaps, borders, blur, animations, groups)
-    │   ├── windowrules.conf   # Per-app rules (float, opacity, workspace)
-    │   ├── keybindings.conf   # All keybindings & resize submap
-    │   ├── debug.conf         # Debug & performance toggles
-    │   ├── hypridle.conf      # Idle → lock → DPMS → suspend chain
-    │   ├── hyprlock.conf      # Lock screen appearance
-    │   ├── hyprpaper.conf     # Wallpaper configuration
-    │   └── scripts/           # Helper scripts
-    │       ├── screenshot.sh      # Area/window/full/monitor screenshots
-    │       ├── volume.sh          # Volume control with OSD
-    │       ├── brightness.sh      # Brightness control with OSD
-    │       ├── wallpaper.sh       # Random wallpaper switcher
-    │       └── gamemode.sh        # Toggle gaming mode
-    ├── waybar/            # Status bar
-    ├── rofi/              # App launcher
-    ├── dunst/             # Notifications
-    ├── wlogout/           # Power menu (lock, logout, reboot, shutdown)
-    ├── nvim/              # Neovim configuration
-    ├── kitty/             # Kitty terminal
-    ├── ghostty/           # Ghostty terminal
-    ├── fastfetch/         # System info
-    ├── clangd/            # C++ LSP
-    ├── pi/                # Pi terminal AI agent
-    │   ├── models.json        # Provider & model definitions
-    │   └── settings.json      # Default provider/model
-    └── starship.toml      # Prompt theme
+    ├── hypr/
+    │   ├── hyprland.conf
+    │   ├── monitors.conf
+    │   ├── programs.conf
+    │   ├── input.conf
+    │   ├── gestures.conf
+    │   ├── cursor.conf
+    │   ├── autostart.conf
+    │   ├── environment.conf
+    │   ├── theme.conf
+    │   ├── windowrules.conf
+    │   ├── keybindings.conf
+    │   ├── debug.conf
+    │   ├── hypridle.conf
+    │   ├── hyprlock.conf
+    │   ├── hyprpaper.conf
+    │   └── scripts/
+    ├── waybar/
+    ├── rofi/
+    ├── dunst/
+    ├── wlogout/
+    ├── nvim/
+    ├── kitty/
+    ├── ghostty/
+    ├── fastfetch/
+    ├── clangd/
+    ├── pi/
+    └── starship.toml
 ```
 
-## 🎯 Philosophy
+## Philosophy
 
-- **Nix = dotfile manager**, not a package manager
-- **CachyOS packages** for all Hyprland-related tools (waybar, rofi, dunst, etc.)
-- **Modular configs** — each file is self-contained and can be edited independently
-- **Catppuccin Mocha** theme across all components
-- **Secrets stay local** — API keys loaded from `~/.secrets` (gitignored), never committed
+- Nix is used mainly as a dotfile manager, not a package manager
+- Hyprland desktop apps/tools like `waybar`, `rofi`, `dunst`, `hypr*`, `grim`, `slurp`, etc. are expected to come from system/CachyOS packages
+- Configs are modular so each file can be edited independently
+- Secrets stay local in `~/.secrets` and are never committed
 
-## 📦 CachyOS Packages Required
+## Required system packages
+
+Install the desktop tools that are intentionally kept outside Nix:
 
 ```bash
-# Core Hyprland
-sudo pacman -S hyprland hyprlock hypridle hyprpaper xdg-desktop-portal-hyprland
+sudo pacman -S \
+  hyprland hyprlock hypridle hyprpaper xdg-desktop-portal-hyprland \
+  waybar rofi-wayland dunst \
+  grim slurp wl-clipboard cliphist \
+  wlogout brightnessctl playerctl network-manager-applet
+```
 
-# Bar, Launcher, Notifications
-sudo pacman -S waybar rofi-wayland dunst
+Optional extras:
 
-# Screenshot & Clipboard
-sudo pacman -S grim slurp wl-clipboard cliphist
-
-# Power Menu & Utilities
-sudo pacman -S wlogout brightnessctl playerctl network-manager-applet
-
-# Optional
+```bash
 yay -S hyprpicker bibata-cursor-theme
 ```
 
-## 🚀 Installation
+## Setup
 
 ### 1. Install Nix
 
 ```bash
 sh <(curl -L https://nixos.org/nix/install) --daemon
-# For WSL use: sh <(curl -L https://nixos.org/nix/install) --no-daemon
 ```
 
-### 2. Enable Flakes
+For WSL:
+
+```bash
+sh <(curl -L https://nixos.org/nix/install) --no-daemon
+```
+
+### 2. Enable flakes
 
 ```bash
 mkdir -p ~/.config/nix
 echo "experimental-features = nix-command flakes" >> ~/.config/nix/nix.conf
 ```
-*Restart your terminal after this step.*
 
-### 3. Clone dotfiles
+Restart your terminal after this step.
+
+### 3. Clone the repo
 
 ```bash
 git clone https://github.com/YOUR_USERNAME/dotfiles ~/dotfiles
 cd ~/dotfiles
 ```
 
-### 3.5 Set up secrets (for Pi agent)
+### 4. Configure your username
 
-Create a `~/.secrets` file with your API keys — this file is **gitignored** and never committed:
+Update `home.nix` (and `flake.nix` if needed) for your username/home directory.
+
+### 5. Set up secrets for Pi
+
+Create `~/.secrets` for API keys. It is gitignored and loaded by the shell and Pi activation:
 
 ```bash
-cat > ~/.secrets << 'EOF'
+cat > ~/.secrets <<'EOF'
 # API Keys — DO NOT COMMIT
 export AZURE_OPENAI_API_KEY="your-azure-api-key-here"
 EOF
 chmod 600 ~/.secrets
 ```
 
-Home Manager will automatically generate `~/.pi/agent/auth.json` from this env var on `update`.
+Home Manager generates `~/.pi/agent/auth.json` from that variable during activation.
 
-### 4. Configure
-
-- In `flake.nix`: Change `"harry"` to your username.
-- In `home.nix`: Update `home.username` and `home.homeDirectory`.
-
-### 5. Apply config
+### 6. Apply the config
 
 ```bash
-# First time
-nix run . -- switch --flake . -b backup
-
-# Set Zsh as default shell
-echo "$HOME/.nix-profile/bin/zsh" | sudo tee -a /etc/shells
-chsh -s "$HOME/.nix-profile/bin/zsh"
-exec zsh
+home-manager switch --flake ~/dotfiles
 ```
 
-## 🤖 Pi Terminal Agent
+If you are on NixOS, the `update` alias in `home.nix` will choose between Home Manager and `nixos-rebuild`.
 
-Pi is configured to use **Azure AI Foundry** with these models:
+## Pi terminal agent
 
-| Model | ID | Use case |
-|-------|----|----------|
-| GPT-5.4 Mini | `gpt-5.4-mini` | Fast, lightweight tasks (default) |
-| GPT-5.4 | `gpt-5.4` | Complex reasoning tasks |
+Pi is configured through files under `config/pi/` and linked into `~/.pi/agent/` by Home Manager.
 
-Switch models inside Pi with `/model azure-foundry/gpt-5.4`.
+- `settings.json` is intentionally linked out-of-store so changes from Pi persist in the repo
+- `models.json` defines the available models
+- `keybindings.json` and the `*-extension.ts` files provide Pi custom actions
+- prompt, skill, and theme resources are also linked from `config/pi/`
 
-Config files are deployed by Home Manager to `~/.pi/agent/`. The API key is loaded from `~/.secrets` → never touches git.
+## Daily use
 
-## 🧠 Neovim Dependencies
+Useful shell aliases from `home.nix`:
 
-Tools used by `config/nvim` (LSP, formatters, etc.) should be installed via your system package manager (pacman, apt, etc.).
-Minimum for C++:
-- `g++` 
-- `clangd`
+- `update` — apply dotfiles on Home Manager or NixOS
+- `update-home` — apply only Home Manager
+- `update-system` — run `nixos-rebuild switch --flake ~/dotfiles`
+- `ez` — open `home.nix`
+- `hy` — jump to the Hyprland config directory
 
-## 📖 Daily Use
+## Notes
 
-- `update`: Automatically detects and applies changes (Home Manager or NixOS).
-- `ez`: Opens `home.nix` in Neovim.
-- `update-home`: Updates only Home Manager.
-
-## 🔄 Syncing
-
-```bash
-cd ~/dotfiles
-git add .
-git commit -m "Update"
-git push
-# On other machine: git pull && update
-```
-
-## 🆘 Troubleshooting
-
-- **zsh: command not found: home-manager**: `source ~/.nix-profile/etc/profile.d/nix.sh`
-- **Permission denied**: Use `sudo` if applying to a NixOS system.
-- **Icons missing**: Install a Nerd Font.
-- **~/.zshrc conflict**: `mv ~/.zshrc ~/.zshrc.backup`
-- **Hyprland not loading configs**: Check `hyprctl systeminfo` and logs at `/tmp/hypr/*/hyprland.log`
-- **Screen sharing not working**: Ensure `xdg-desktop-portal-hyprland` is installed
-- **NVIDIA issues**: Uncomment NVIDIA section in `environment.conf` and set `cursor:no_hardware_cursors = true` in `cursor.conf`
+- `config/hypr/hyprland.conf` is the top-level Hyprland dispatcher
+- Preserve executable bits for `config/hypr/scripts/*.sh`
+- Keep secrets out of the repo
+- Keep this README in sync with `home.nix` when adding or moving config files
