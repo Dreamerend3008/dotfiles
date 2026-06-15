@@ -11,8 +11,8 @@
     "xhigh": 16384
   },
   "enabledModels": [
-    "gpt-5.4-mini",
-    "gpt-5.4"
+    "azure-foundry/gpt-5.4-mini",
+    "azure-foundry/gpt-5.4"
   ],
   "modelPricing": {
     "gpt-5.4": {
