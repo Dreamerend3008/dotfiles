@@ -1,10 +1,12 @@
 import { DynamicBorder, type ExtensionAPI } from "@earendil-works/pi-coding-agent";
 import { Container, SelectList, Text, type SelectItem } from "@earendil-works/pi-tui";
+import { randomUUID } from "node:crypto";
+import { appendFileSync, existsSync, readFileSync, readdirSync, statSync, unlinkSync } from "node:fs";
 import { basename, join } from "node:path";
-import { existsSync, readFileSync, readdirSync, statSync, unlinkSync } from "node:fs";
 
 type SessionFileEntry = {
   type?: string;
+  id?: string;
   timestamp?: string | number;
   cwd?: string;
   name?: string;
@@ -181,6 +183,33 @@ function getSortedSessions(): SessionSummary[] {
     .sort((a, b) => b.modified.getTime() - a.modified.getTime());
 }
 
+function appendSessionName(path: string, name: string) {
+  let parentId: string | null = null;
+
+  for (const line of readFileSync(path, "utf8").split("\n")) {
+    if (!line.trim()) continue;
+    try {
+      const entry = JSON.parse(line) as SessionFileEntry;
+      if (typeof entry.id === "string" && entry.id) {
+        parentId = entry.id;
+      }
+    } catch {
+      // ignore malformed lines when finding the latest valid parent id
+    }
+  }
+
+  appendFileSync(
+    path,
+    `${JSON.stringify({
+      type: "session_info",
+      id: randomUUID(),
+      parentId,
+      timestamp: new Date().toISOString(),
+      name,
+    })}\n`,
+  );
+}
+
 export default function sessionManagerExtension(pi: ExtensionAPI) {
   pi.registerCommand("list-sessions", {
     description: "List saved sessions and pick one to resume.",
@@ -221,6 +250,53 @@ export default function sessionManagerExtension(pi: ExtensionAPI) {
     },
   });
 
+  pi.registerCommand("rename-session", {
+    description: "Rename the current session, or pick any saved session to rename interactively.",
+    handler: async (args, ctx) => {
+      const requestedName = compactWhitespace(args);
+      if (requestedName) {
+        pi.setSessionName(requestedName);
+        if (ctx.hasUI) ctx.ui.notify(`Renamed current session: ${requestedName}`, "info");
+        else console.log(`Renamed current session: ${requestedName}`);
+        return;
+      }
+
+      if (!ctx.hasUI) {
+        console.log("Usage: /rename-session <new name>");
+        return;
+      }
+
+      if (!ctx.isIdle()) {
+        await ctx.waitForIdle();
+      }
+
+      const sessions = getSortedSessions();
+      if (sessions.length === 0) {
+        ctx.ui.notify("No saved sessions found.", "info");
+        return;
+      }
+
+      const selected = await pickSession(ctx, sessions, "Pick a session to rename");
+      if (!selected) return;
+
+      const currentSessionPath = ctx.sessionManager.getSessionFile();
+      const initialValue = selected.name ?? getSessionTitle(selected);
+      const name = compactWhitespace((await ctx.ui.input("New session name", initialValue)) ?? "");
+      if (!name) {
+        ctx.ui.notify("Rename cancelled.", "info");
+        return;
+      }
+
+      if (selected.path === currentSessionPath) {
+        pi.setSessionName(name);
+      } else {
+        appendSessionName(selected.path, name);
+      }
+
+      ctx.ui.notify(`Renamed session: ${name}`, "info");
+    },
+  });
+
   pi.registerCommand("delete-session", {
     description: "Delete a saved Pi session by path, or pick one interactively.",
     handler: async (args, ctx) => {
@@ -248,6 +324,13 @@ export default function sessionManagerExtension(pi: ExtensionAPI) {
       }
 
       const resolvedTarget = target.startsWith("/") ? target : `${getSessionsDir()}/${target}`;
+      const currentSessionPath = ctx.sessionManager.getSessionFile();
+      if (currentSessionPath && resolvedTarget === currentSessionPath) {
+        if (ctx.hasUI) ctx.ui.notify("Refusing to delete the active session.", "warning");
+        else console.log("Refusing to delete the active session.");
+        return;
+      }
+
       if (!existsSync(resolvedTarget)) {
         if (ctx.hasUI) ctx.ui.notify(`Session not found: ${resolvedTarget}`, "warning");
         else console.log(`Session not found: ${resolvedTarget}`);

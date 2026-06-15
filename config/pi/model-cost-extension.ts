@@ -1,5 +1,5 @@
 import type { ExtensionAPI } from "@earendil-works/pi-coding-agent";
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync, readdirSync } from "node:fs";
 import { homedir } from "node:os";
 import { join } from "node:path";
 import { Type } from "typebox";
@@ -12,6 +12,21 @@ type PriceInfo = {
   reasoningUsdPer1M?: number;
 };
 
+type BudgetRule = {
+  warnUsd?: number;
+  limitUsd?: number;
+};
+
+type BudgetConfig = {
+  session?: BudgetRule;
+  monthly?: BudgetRule;
+};
+
+type SettingsData = {
+  modelPricing?: Record<string, PriceInfo>;
+  budgetLimits?: BudgetConfig;
+};
+
 type UsageLike = {
   input?: number;
   output?: number;
@@ -22,6 +37,9 @@ type UsageLike = {
   promptTokens?: number;
   completionTokens?: number;
   reasoningTokens?: number;
+  cost?: {
+    total?: number;
+  };
 };
 
 type Totals = {
@@ -39,12 +57,32 @@ type SessionSummary = {
   costByModel: Record<string, number>;
 };
 
+type MonthSpec = {
+  year: number;
+  month: number;
+  label: string;
+};
+
+type MonthlySummary = {
+  label: string;
+  totals: Totals;
+  totalCost: number;
+  sessionFilesScanned: number;
+  assistantMessages: number;
+};
+
+type BudgetLevel = "ok" | "warn" | "limit";
+
 const ModelCostParams = Type.Object({});
 
 const STATIC_PRICING: Record<string, PriceInfo> = {
   "gpt-5.4": { inputUsdPer1M: 2.5, cachedInputUsdPer1M: 0.25, outputUsdPer1M: 15 },
   "gpt-5.4-mini": { inputUsdPer1M: 0.75, cachedInputUsdPer1M: 0.08, outputUsdPer1M: 4.5 },
 };
+
+let sessionBudgetNoticeLevel: BudgetLevel = "ok";
+let monthlyBudgetNoticeLevel: BudgetLevel = "ok";
+let monthlyBudgetNoticeLabel = "";
 
 function emptyTotals(): Totals {
   return {
@@ -56,16 +94,21 @@ function emptyTotals(): Totals {
   };
 }
 
-function getSettingsFile(): string {
-  return process.env.PI_CODING_AGENT_SETTINGS_FILE || join(process.env.PI_CODING_AGENT_DIR || join(homedir(), ".pi", "agent"), "settings.json");
+function getAgentDir(): string {
+  return process.env.PI_CODING_AGENT_DIR || join(homedir(), ".pi", "agent");
 }
 
-function loadPricingFromSettings(): Record<string, PriceInfo> {
+function getSessionsDir(): string {
+  return process.env.PI_CODING_AGENT_SESSION_DIR || join(getAgentDir(), "sessions");
+}
+
+function getSettingsFile(): string {
+  return process.env.PI_CODING_AGENT_SETTINGS_FILE || join(getAgentDir(), "settings.json");
+}
+
+function loadSettingsData(): SettingsData {
   try {
-    const settings = JSON.parse(readFileSync(getSettingsFile(), "utf8")) as {
-      modelPricing?: Record<string, PriceInfo>;
-    };
-    return settings.modelPricing ?? {};
+    return JSON.parse(readFileSync(getSettingsFile(), "utf8")) as SettingsData;
   } catch {
     return {};
   }
@@ -85,8 +128,7 @@ function getModelRegistryPrice(modelId: string, ctx: any): PriceInfo | undefined
   };
 }
 
-function getPrice(modelId: string, ctx: any): PriceInfo {
-  const settingsPricing = loadPricingFromSettings();
+function getPrice(modelId: string, ctx: any, settingsPricing: Record<string, PriceInfo>): PriceInfo {
   return settingsPricing[modelId] ?? getModelRegistryPrice(modelId, ctx) ?? STATIC_PRICING[modelId] ?? STATIC_PRICING["gpt-5.4-mini"];
 }
 
@@ -100,8 +142,8 @@ function addUsage(totals: Totals, usage: UsageLike | undefined) {
   totals.reasoningTokens += usage.reasoningTokens ?? 0;
 }
 
-function estimateCostFromTotals(modelId: string, totals: Totals, ctx: any): number {
-  const price = getPrice(modelId, ctx);
+function estimateCostFromTotals(modelId: string, totals: Totals, ctx: any, settingsPricing: Record<string, PriceInfo>): number {
+  const price = getPrice(modelId, ctx, settingsPricing);
 
   const inputCost = (totals.inputTokens / 1_000_000) * price.inputUsdPer1M;
   const cacheReadCost = (totals.cacheReadTokens / 1_000_000) * price.cachedInputUsdPer1M;
@@ -110,6 +152,19 @@ function estimateCostFromTotals(modelId: string, totals: Totals, ctx: any): numb
   const reasoningCost = (totals.reasoningTokens / 1_000_000) * (price.reasoningUsdPer1M ?? 0);
 
   return inputCost + cacheReadCost + cacheWriteCost + outputCost + reasoningCost;
+}
+
+function estimateCostFromUsage(modelId: string, usage: UsageLike | undefined, ctx: any, settingsPricing: Record<string, PriceInfo>): number {
+  if (!usage) return 0;
+
+  const storedTotal = usage.cost?.total;
+  if (typeof storedTotal === "number" && Number.isFinite(storedTotal) && storedTotal >= 0) {
+    return storedTotal;
+  }
+
+  const totals = emptyTotals();
+  addUsage(totals, usage);
+  return estimateCostFromTotals(modelId, totals, ctx, settingsPricing);
 }
 
 function fmtInt(value: number): string {
@@ -129,7 +184,7 @@ function modelName(ctx: any, modelId: string): string {
   return found?.name ?? modelId;
 }
 
-function buildSessionSummary(ctx: any): SessionSummary {
+function buildSessionSummary(ctx: any, settingsPricing: Record<string, PriceInfo>): SessionSummary {
   const allModels = emptyTotals();
   const byModel: Record<string, Totals> = {};
 
@@ -161,7 +216,7 @@ function buildSessionSummary(ctx: any): SessionSummary {
   const costByModel: Record<string, number> = {};
   let totalCost = 0;
   for (const [modelId, totals] of Object.entries(byModel)) {
-    const cost = estimateCostFromTotals(modelId, totals, ctx);
+    const cost = estimateCostFromTotals(modelId, totals, ctx, settingsPricing);
     costByModel[modelId] = cost;
     totalCost += cost;
   }
@@ -169,13 +224,154 @@ function buildSessionSummary(ctx: any): SessionSummary {
   return { allModels, byModel, totalCost, costByModel };
 }
 
-function formatStatus(ctx: any): string {
-  const summary = buildSessionSummary(ctx);
-  return `spent ${fmtUsd(summary.totalCost)}`;
+function currentMonth(): MonthSpec {
+  const now = new Date();
+  return {
+    year: now.getFullYear(),
+    month: now.getMonth(),
+    label: `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`,
+  };
 }
 
-function formatReport(ctx: any): string {
-  const summary = buildSessionSummary(ctx);
+function parseMonthArg(arg: string): MonthSpec | null {
+  const trimmed = arg.trim();
+  if (!trimmed) return currentMonth();
+
+  const match = trimmed.match(/^(\d{4})-(\d{2})$/);
+  if (!match) return null;
+
+  const year = Number(match[1]);
+  const monthNumber = Number(match[2]);
+  if (monthNumber < 1 || monthNumber > 12) return null;
+
+  return {
+    year,
+    month: monthNumber - 1,
+    label: `${match[1]}-${match[2]}`,
+  };
+}
+
+function isSameMonth(timestamp: unknown, spec: MonthSpec): boolean {
+  if (typeof timestamp !== "string" && typeof timestamp !== "number") return false;
+  const date = new Date(timestamp);
+  if (Number.isNaN(date.getTime())) return false;
+  return date.getFullYear() === spec.year && date.getMonth() === spec.month;
+}
+
+function walkSessionFiles(dir: string): string[] {
+  if (!existsSync(dir)) return [];
+
+  const files: string[] = [];
+  for (const entry of readdirSync(dir, { withFileTypes: true })) {
+    const fullPath = join(dir, entry.name);
+    if (entry.isDirectory()) {
+      files.push(...walkSessionFiles(fullPath));
+      continue;
+    }
+    if (entry.isFile() && entry.name.endsWith(".jsonl")) {
+      files.push(fullPath);
+    }
+  }
+  return files;
+}
+
+function collectMonthlySummary(ctx: any, spec: MonthSpec, settingsPricing: Record<string, PriceInfo>): MonthlySummary {
+  const totals = emptyTotals();
+  const seenMessages = new Set<string>();
+  const sessionFiles = walkSessionFiles(getSessionsDir());
+  let totalCost = 0;
+  let assistantMessages = 0;
+
+  for (const sessionFile of sessionFiles) {
+    const content = readFileSync(sessionFile, "utf8");
+    for (const line of content.split("\n")) {
+      if (!line.trim()) continue;
+
+      let entry: any;
+      try {
+        entry = JSON.parse(line);
+      } catch {
+        continue;
+      }
+
+      if (entry?.type !== "message") continue;
+      if (entry?.message?.role !== "assistant") continue;
+      if (!isSameMonth(entry.timestamp, spec)) continue;
+
+      const messageKey = line.trim();
+      if (seenMessages.has(messageKey)) continue;
+
+      const usage = entry.message.usage as UsageLike | undefined;
+      const usageTotals = emptyTotals();
+      addUsage(usageTotals, usage);
+      const totalTokens =
+        usageTotals.inputTokens +
+        usageTotals.outputTokens +
+        usageTotals.cacheReadTokens +
+        usageTotals.cacheWriteTokens +
+        usageTotals.reasoningTokens;
+      if (totalTokens <= 0) continue;
+
+      seenMessages.add(messageKey);
+      assistantMessages += 1;
+      addUsage(totals, usage);
+
+      const modelId = String(entry.message.model ?? "unknown-model");
+      totalCost += estimateCostFromUsage(modelId, usage, ctx, settingsPricing);
+    }
+  }
+
+  return {
+    label: spec.label,
+    totals,
+    totalCost,
+    sessionFilesScanned: sessionFiles.length,
+    assistantMessages,
+  };
+}
+
+function getBudgetLevel(cost: number, rule: BudgetRule | undefined): BudgetLevel {
+  if (!rule) return "ok";
+  if (typeof rule.limitUsd === "number" && cost >= rule.limitUsd) return "limit";
+  if (typeof rule.warnUsd === "number" && cost >= rule.warnUsd) return "warn";
+  return "ok";
+}
+
+function levelRank(level: BudgetLevel): number {
+  return level === "limit" ? 2 : level === "warn" ? 1 : 0;
+}
+
+function formatBudgetRule(rule: BudgetRule | undefined): string {
+  if (!rule || (typeof rule.warnUsd !== "number" && typeof rule.limitUsd !== "number")) {
+    return "no limits configured";
+  }
+
+  const parts: string[] = [];
+  if (typeof rule.warnUsd === "number") parts.push(`warn ${fmtUsd(rule.warnUsd)}`);
+  if (typeof rule.limitUsd === "number") parts.push(`limit ${fmtUsd(rule.limitUsd)}`);
+  return parts.join(" · ");
+}
+
+function formatBudgetLine(label: string, cost: number, rule: BudgetRule | undefined): string {
+  const level = getBudgetLevel(cost, rule);
+  const suffix = level === "limit" ? "LIMIT" : level === "warn" ? "warning" : "ok";
+  return `${label}: ${fmtUsd(cost)} (${formatBudgetRule(rule)}) · ${suffix}`;
+}
+
+function formatStatus(totalCost: number, level: BudgetLevel): string {
+  if (level === "limit") return `spent ${fmtUsd(totalCost)} · limit`;
+  if (level === "warn") return `spent ${fmtUsd(totalCost)} · warn`;
+  return `spent ${fmtUsd(totalCost)}`;
+}
+
+function formatBudgetStatus(sessionCost: number, sessionRule: BudgetRule | undefined, monthly: MonthlySummary, monthlyRule: BudgetRule | undefined): string {
+  const sessionPart = `session ${fmtUsd(sessionCost)}${typeof sessionRule?.limitUsd === "number" ? `/${fmtUsd(sessionRule.limitUsd)}` : ""}`;
+  const monthPart = `${monthly.label} ${fmtUsd(monthly.totalCost)}${typeof monthlyRule?.limitUsd === "number" ? `/${fmtUsd(monthlyRule.limitUsd)}` : ""}`;
+  return `${sessionPart} · ${monthPart}`;
+}
+
+function formatReport(ctx: any, settingsPricing: Record<string, PriceInfo>): string {
+  const summary = buildSessionSummary(ctx, settingsPricing);
   const lines = [
     "Current session cost",
     `All models: ${fmtInt(summary.allModels.inputTokens + summary.allModels.outputTokens + summary.allModels.cacheReadTokens + summary.allModels.cacheWriteTokens)} total (${fmtInt(summary.allModels.inputTokens)} in, ${fmtInt(summary.allModels.outputTokens)} out, ${fmtInt(summary.allModels.cacheReadTokens)} cache read, ${fmtInt(summary.allModels.cacheWriteTokens)} cache write) · ${fmtUsd(summary.totalCost)}`,
@@ -194,17 +390,114 @@ function formatReport(ctx: any): string {
   return lines.join("\n");
 }
 
+function formatBudgetReport(ctx: any, monthSpec: MonthSpec, settingsPricing: Record<string, PriceInfo>, budgetLimits: BudgetConfig): string {
+  const sessionSummary = buildSessionSummary(ctx, settingsPricing);
+  const monthlySummary = collectMonthlySummary(ctx, monthSpec, settingsPricing);
+
+  return [
+    `Budget status for ${monthSpec.label}`,
+    formatBudgetLine("Current session", sessionSummary.totalCost, budgetLimits.session),
+    formatBudgetLine(`Month ${monthlySummary.label}`, monthlySummary.totalCost, budgetLimits.monthly),
+    `Month assistant turns: ${fmtInt(monthlySummary.assistantMessages)}`,
+    `Session files scanned: ${fmtInt(monthlySummary.sessionFilesScanned)}`,
+    `Session root: ${getSessionsDir()}`,
+  ].join("\n");
+}
+
+function maybeNotifyBudget(ctx: any, sessionCost: number, sessionRule: BudgetRule | undefined, monthlySummary: MonthlySummary, monthlyRule: BudgetRule | undefined) {
+  const sessionLevel = getBudgetLevel(sessionCost, sessionRule);
+  if (levelRank(sessionLevel) > levelRank(sessionBudgetNoticeLevel)) {
+    ctx.ui.notify(
+      sessionLevel === "limit"
+        ? `Session budget limit reached: ${fmtUsd(sessionCost)} (${formatBudgetRule(sessionRule)})`
+        : `Session budget warning: ${fmtUsd(sessionCost)} (${formatBudgetRule(sessionRule)})`,
+      sessionLevel === "limit" ? "error" : "warning",
+    );
+    sessionBudgetNoticeLevel = sessionLevel;
+  }
+
+  const monthlyLevel = getBudgetLevel(monthlySummary.totalCost, monthlyRule);
+  if (monthlyBudgetNoticeLabel !== monthlySummary.label) {
+    monthlyBudgetNoticeLabel = monthlySummary.label;
+    monthlyBudgetNoticeLevel = "ok";
+  }
+  if (levelRank(monthlyLevel) > levelRank(monthlyBudgetNoticeLevel)) {
+    ctx.ui.notify(
+      monthlyLevel === "limit"
+        ? `Monthly budget limit reached for ${monthlySummary.label}: ${fmtUsd(monthlySummary.totalCost)} (${formatBudgetRule(monthlyRule)})`
+        : `Monthly budget warning for ${monthlySummary.label}: ${fmtUsd(monthlySummary.totalCost)} (${formatBudgetRule(monthlyRule)})`,
+      monthlyLevel === "limit" ? "error" : "warning",
+    );
+    monthlyBudgetNoticeLevel = monthlyLevel;
+  }
+}
+
 function refreshStatus(ctx: any) {
-  ctx.ui.setStatus("cost", formatStatus(ctx));
+  const settings = loadSettingsData();
+  const settingsPricing = settings.modelPricing ?? {};
+  const budgetLimits = settings.budgetLimits ?? {};
+  const sessionSummary = buildSessionSummary(ctx, settingsPricing);
+  const monthlySummary = collectMonthlySummary(ctx, currentMonth(), settingsPricing);
+
+  ctx.ui.setStatus("cost", formatStatus(sessionSummary.totalCost, getBudgetLevel(sessionSummary.totalCost, budgetLimits.session)));
+
+  if (budgetLimits.session || budgetLimits.monthly) {
+    ctx.ui.setStatus(
+      "budget",
+      formatBudgetStatus(sessionSummary.totalCost, budgetLimits.session, monthlySummary, budgetLimits.monthly),
+    );
+  } else {
+    ctx.ui.setStatus("budget", undefined);
+  }
+
+  if (ctx.hasUI) {
+    maybeNotifyBudget(ctx, sessionSummary.totalCost, budgetLimits.session, monthlySummary, budgetLimits.monthly);
+  }
 }
 
 export default function modelCostExtension(pi: ExtensionAPI) {
   pi.on("session_start", (_event, ctx) => {
+    sessionBudgetNoticeLevel = "ok";
+    monthlyBudgetNoticeLevel = "ok";
+    monthlyBudgetNoticeLabel = currentMonth().label;
     refreshStatus(ctx);
   });
 
   pi.on("turn_end", (_event, ctx) => {
     refreshStatus(ctx);
+  });
+
+  pi.registerCommand("budget", {
+    description: "Show current session and monthly budget status (usage: /budget [YYYY-MM])",
+    handler: async (args, ctx) => {
+      const month = parseMonthArg(args);
+      if (!month) {
+        if (ctx.hasUI) ctx.ui.notify("Usage: /budget [YYYY-MM]", "warning");
+        else console.log("Usage: /budget [YYYY-MM]");
+        return;
+      }
+
+      if (!ctx.isIdle()) {
+        await ctx.waitForIdle();
+      }
+
+      const settings = loadSettingsData();
+      const report = formatBudgetReport(ctx, month, settings.modelPricing ?? {}, settings.budgetLimits ?? {});
+      if (!ctx.hasUI) {
+        console.log(report);
+        return;
+      }
+
+      pi.sendMessage({
+        customType: "budget-report",
+        content: report,
+        display: true,
+        details: {
+          month: month.label,
+          settings: settings.budgetLimits ?? {},
+        },
+      });
+    },
   });
 
   pi.registerTool({
@@ -215,9 +508,10 @@ export default function modelCostExtension(pi: ExtensionAPI) {
     promptGuidelines: ["Use model_cost when the user asks about current spend or accumulated session cost."],
     parameters: ModelCostParams,
     async execute(_toolCallId, _params, _signal, _onUpdate, ctx) {
-      const summary = buildSessionSummary(ctx);
+      const settingsPricing = loadSettingsData().modelPricing ?? {};
+      const summary = buildSessionSummary(ctx, settingsPricing);
       return {
-        content: [{ type: "text", text: formatReport(ctx) }],
+        content: [{ type: "text", text: formatReport(ctx, settingsPricing) }],
         details: summary,
       };
     },

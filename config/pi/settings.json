@@ -1,6 +1,6 @@
 {
   "defaultProvider": "azure-foundry",
-  "defaultModel": "gpt-5.4",
+  "defaultModel": "gpt-5.4-mini",
   "defaultThinkingLevel": "medium",
   "theme": "bearded-coffee-night",
   "thinkingBudgets": {
@@ -24,6 +24,16 @@
       "inputUsdPer1M": 0.75,
       "cachedInputUsdPer1M": 0.08,
       "outputUsdPer1M": 4.5
+    }
+  },
+  "budgetLimits": {
+    "session": {
+      "warnUsd": 2,
+      "limitUsd": 5
+    },
+    "monthly": {
+      "warnUsd": 10,
+      "limitUsd": 20
     }
   },
   "lastChangelogVersion": "0.79.3"
