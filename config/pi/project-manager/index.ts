@@ -490,10 +490,15 @@ function buildPiCommand(name?: string, sessionPath?: string): string {
   return parts.join(" ");
 }
 
+function buildPiEnvPrefix(): string {
+  return 'env NODE_OPTIONS="--no-warnings=ExperimentalWarning" NODE_NO_WARNINGS="1"';
+}
+
 function launchPiInstance(cwd: string, options?: { name?: string; sessionPath?: string; windowName?: string }): LaunchResult {
   const nixSource = 'if [ -f "$HOME/.nix-profile/etc/profile.d/nix.sh" ]; then . "$HOME/.nix-profile/etc/profile.d/nix.sh"; fi';
   const piCmd = buildPiCommand(options?.name, options?.sessionPath);
-  const command = `cd ${shellQuote(cwd)} && ${nixSource} && exec ${piCmd}`;
+  const envPrefix = buildPiEnvPrefix();
+  const command = `cd ${shellQuote(cwd)} && ${nixSource} && exec ${envPrefix} ${piCmd}`;
 
   if (!hasTmux()) {
     return {
@@ -503,7 +508,7 @@ function launchPiInstance(cwd: string, options?: { name?: string; sessionPath?: 
     };
   }
 
-  const tmuxCommand = `${nixSource} && exec ${piCmd}`;
+  const tmuxCommand = `${nixSource} && exec ${envPrefix} ${piCmd}`;
 
   if (process.env.TMUX) {
     const windowName = options?.windowName || options?.name || basename(cwd);

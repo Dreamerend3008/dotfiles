@@ -68,6 +68,8 @@
         initContent = ''
           export PATH="$PATH:/snap/bin"
           export PATH="$HOME/.npm-global/bin:$PATH"
+          export NODE_OPTIONS="--no-warnings=ExperimentalWarning"
+          export NODE_NO_WARNINGS="1"
           # Nix env (standalone)
           if [ -e "$HOME/.nix-profile/etc/profile.d/nix.sh" ]; then . "$HOME/.nix-profile/etc/profile.d/nix.sh"; fi
 
@@ -147,6 +149,7 @@
     home.file.".pi/agent/extensions/model-cost-extension.ts".source = ./config/pi/model-cost-extension.ts;
     home.file.".pi/agent/extensions/usage-extension.ts".source = ./config/pi/usage-extension.ts;
     home.file.".pi/agent/extensions/session-manager-extension.ts".source = ./config/pi/session-manager-extension.ts;
+    home.file.".pi/agent/extensions/clipboard-image-path-extension.ts".source = ./config/pi/extensions/clipboard-image-path-extension.ts;
     home.file.".pi/agent/extensions/project-manager" = { source = ./config/pi/project-manager; recursive = true; };
     home.file.".pi/agent/skills" = { source = ./config/pi/skills; recursive = true; };
     home.file.".pi/agent/prompts" = { source = ./config/pi/prompts; recursive = true; };
@@ -179,6 +182,8 @@ EOF
             EDITOR = "nvim";
             VISUAL = "nvim";
             NPM_CONFIG_PREFIX = "$HOME/.npm-global";
+            # Silence Node experimental warnings (e.g. context-mode mcp-bridge SQLite warning)
+            NODE_OPTIONS = "--no-warnings=ExperimentalWarning";
             NODE_NO_WARNINGS = "1";
     };
     home.sessionPath = [ "$HOME/.npm-global/bin" ];

@@ -1,8 +1,16 @@
 {
   "defaultProvider": "azure-foundry",
-  "defaultModel": "gpt-5.4",
+  "defaultModel": "gpt-5.4-mini",
   "defaultThinkingLevel": "medium",
   "theme": "bearded-coffee-night",
+  "terminal": {
+    "showImages": true,
+    "imageWidthCells": 60
+  },
+  "images": {
+    "autoResize": true,
+    "blockImages": false
+  },
   "thinkingBudgets": {
     "minimal": 512,
     "low": 2048,
@@ -12,7 +20,8 @@
   },
   "enabledModels": [
     "azure-foundry/gpt-5.4-mini",
-    "azure-foundry/gpt-5.4"
+    "azure-foundry/gpt-5.4",
+    "azure-foundry/FW-Kimi-K2.6"
   ],
   "modelPricing": {
     "gpt-5.4": {
@@ -24,6 +33,11 @@
       "inputUsdPer1M": 0.75,
       "cachedInputUsdPer1M": 0.08,
       "outputUsdPer1M": 4.5
+    },
+    "FW-Kimi-K2": {
+      "inputUsdPer1M": 1.045,
+      "cachedInputUsdPer1M": 0.176,
+      "outputUsdPer1M": 4.4
     }
   },
   "budgetLimits": {

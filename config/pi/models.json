@@ -9,6 +9,7 @@
         {
           "id": "gpt-5.4-mini",
           "name": "GPT-5.4 Mini (Azure Foundry)",
+          "input": ["text", "image"],
           "contextWindow": 1047576,
           "maxTokens": 16384,
           "cost": {
@@ -21,6 +22,7 @@
         {
           "id": "gpt-5.4",
           "name": "GPT-5.4 (Azure Foundry)",
+          "input": ["text", "image"],
           "contextWindow": 1047576,
           "maxTokens": 16384,
           "reasoning": true,
@@ -28,6 +30,19 @@
             "input": 2.5,
             "output": 15,
             "cacheRead": 0.25,
+            "cacheWrite": 0
+          }
+        },
+        {
+          "id": "FW-Kimi-K2.6",
+          "name": "FW-Kimi-K2 (Azure Foundry)",
+          "contextWindow": 262144,
+          "maxTokens": 16384,
+          "reasoning": true,
+          "cost": {
+            "input": 1.045,
+            "output": 4.4,
+            "cacheRead": 0.176,
             "cacheWrite": 0
           }
         }
