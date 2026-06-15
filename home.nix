@@ -18,7 +18,7 @@
 
         
         # utilities
-        fastfetch curl wget unzip jq ponysay zip sioyek
+        fastfetch curl wget unzip jq ponysay zip sioyek pipewire qt6.qt5compat qt6.qtmultimedia
         
         # Desktop / Hyprland
         # NOTE: Hyprland tools (waybar, rofi, dunst, hyprlock, hypridle, swww,
