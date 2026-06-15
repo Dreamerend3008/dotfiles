@@ -6,5 +6,7 @@
   "tui.editor.cursorWordLeft": ["alt+left", "alt+b"],
   "tui.editor.cursorWordRight": ["alt+right", "alt+w"],
   "tui.editor.deleteCharBackward": ["backspace", "ctrl+h"],
-  "tui.input.newLine": ["shift+enter", "ctrl+j"]
+  "tui.input.newLine": ["shift+enter", "ctrl+j"],
+  "list_sessions": ["ctrl+alt+s"],
+  "delete_session": ["ctrl+alt+d"]
 }

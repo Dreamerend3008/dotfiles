@@ -147,6 +147,7 @@
     home.file.".pi/agent/extensions/web-search-extension.ts".source = ./config/pi/web-search-extension.ts;
     home.file.".pi/agent/extensions/model-cost-extension.ts".source = ./config/pi/model-cost-extension.ts;
     home.file.".pi/agent/extensions/usage-extension.ts".source = ./config/pi/usage-extension.ts;
+    home.file.".pi/agent/extensions/session-manager-extension.ts".source = ./config/pi/session-manager-extension.ts;
     home.file.".pi/agent/skills" = { source = ./config/pi/skills; recursive = true; };
     home.file.".pi/agent/prompts" = { source = ./config/pi/prompts; recursive = true; };
     home.file.".pi/agent/themes/cachyos-neon.json".source = ./config/pi/themes/cachyos-neon.json;
