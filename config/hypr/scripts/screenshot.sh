@@ -13,6 +13,10 @@ TIMESTAMP=$(date '+%Y-%m-%d_%H-%M-%S')
 FILENAME="screenshot_${TIMESTAMP}.png"
 FILEPATH="${SCREENSHOT_DIR}/${FILENAME}"
 
+# Resolve this script reliably even when launched through a symlinked Nix store
+# path or via a different shell context.
+SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
+
 # --- Ensure screenshot directory exists -------------------------------------
 mkdir -p "${SCREENSHOT_DIR}"
 

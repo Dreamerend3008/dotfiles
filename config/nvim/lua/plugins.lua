@@ -155,11 +155,21 @@ require("lazy").setup({
       image = {
         enabled = true,
         resolve = function(file, src)
-          -- Let snacks handle absolute paths or web URLs directly
+          -- Let snacks handle absolute paths or web URLs directly.
           if src:match("^https?://") or src:match("^/") then
             return nil
           end
-          
+
+          -- Prefer obsidian.nvim's attachment resolver for vault notes.
+          local ok, api = pcall(require, "obsidian.api")
+          if ok and api.path_is_note(file) then
+            local attachment_path = api.resolve_attachment_path(src)
+            if attachment_path ~= nil then
+              return tostring(attachment_path)
+            end
+          end
+
+          -- Fallback for plain markdown files outside an Obsidian vault.
           local file_dir = vim.fs.dirname(file)
           local candidates = {
             file_dir .. "/" .. src,
@@ -173,7 +183,7 @@ require("lazy").setup({
             vim.fn.expand("~/vaults/work/" .. src),
             vim.fn.expand("~/vaults/work/attachments/" .. src),
           }
-          
+
           for _, path in ipairs(candidates) do
             if vim.fn.filereadable(path) == 1 then
               return path
@@ -286,6 +296,13 @@ require("lazy").setup({
       end,
       link = {
         style = "wiki",
+      },
+      attachments = {
+        folder = "attachments",
+        img_name_func = function()
+          return string.format("pasted-image-%s", os.date("%Y%m%d-%H%M%S"))
+        end,
+        confirm_img_paste = true,
       },
     },
   },

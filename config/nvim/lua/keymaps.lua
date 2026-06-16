@@ -81,15 +81,23 @@ keymap("n", "<leader>tt", "<cmd>ToggleTerm<CR>", { desc = "Toggle terminal" })
 -- ┌────────────────────────────────────────────────────────────────────────────┐
 -- │ Obsidian / Notes Keymaps                                                    │
 -- └────────────────────────────────────────────────────────────────────────────┘
-keymap("n", "<leader>nn", function()
-  -- Ensure obsidian.nvim is loaded
-  local ok, obsidian = pcall(require, "obsidian")
-  if not ok then
-    local lazy_ok, lazy = pcall(require, "lazy")
-    if lazy_ok then
-      lazy.load({ plugins = { "obsidian.nvim" } })
-    end
+local function ensure_obsidian_loaded()
+  local ok = pcall(require, "obsidian")
+  if ok then
+    return true
   end
+
+  local lazy_ok, lazy = pcall(require, "lazy")
+  if lazy_ok then
+    lazy.load({ plugins = { "obsidian.nvim" } })
+    return pcall(require, "obsidian")
+  end
+
+  return false
+end
+
+keymap("n", "<leader>nn", function()
+  ensure_obsidian_loaded()
 
   local title = vim.fn.input("Enter note title (optional): ")
   if title == nil then
@@ -129,6 +137,13 @@ keymap("n", "<leader>nt", "<cmd>Obsidian template<CR>", { desc = "Insert templat
 keymap("n", "<leader>nc", "<cmd>Obsidian toggle_checkbox<CR>", { desc = "Toggle checkbox" })
 keymap("n", "<leader>nb", "<cmd>Obsidian backlinks<CR>", { desc = "Show backlinks" })
 keymap("n", "<leader>no", "<cmd>Obsidian open<CR>", { desc = "Open in Obsidian app" })
+keymap("n", "<leader>np", function()
+  if not ensure_obsidian_loaded() then
+    vim.notify("obsidian.nvim is not available", vim.log.levels.ERROR)
+    return
+  end
+  vim.cmd("Obsidian paste_img")
+end, { desc = "Paste image from clipboard" })
 keymap("v", "<leader>nl", ":Obsidian link<CR>", { desc = "Link selection to note" })
 keymap("v", "<leader>nln", ":Obsidian link_new<CR>", { desc = "Link selection to new note" })
 
