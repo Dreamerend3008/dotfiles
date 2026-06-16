@@ -47,7 +47,7 @@
                 cd = "z";
                 # Config shortcuts
                 ez = "nvim ~/dotfiles/home.nix";
-                hy = "cd ~/.config/hypr/configs";
+                hy = "cd ~/dotfiles/config/hypr/";
                 uni = "cd /mnt/c/Users/juanb";
                 # Update dotfiles commands 
                 update = "if [ -f /etc/nixos/configuration.nix ]; then sudo nixos-rebuild switch --flake ~/dotfiles; else home-manager switch --flake ~/dotfiles; fi";
