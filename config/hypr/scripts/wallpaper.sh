@@ -3,14 +3,14 @@
 # wallpaper.sh — Wallpaper setter for Hyprland
 # Supports hyprpaper (primary) and swww (fallback)
 # Usage: wallpaper.sh [path_to_wallpaper]
-#   No args  → random wallpaper from ~/Pictures/Wallpapers/
+#   No args  → random wallpaper from ~/dotfiles/utils/wallpapers/
 #   With arg → use the specified wallpaper file
 # ============================================================================
 
 set -euo pipefail
 
 # --- Configuration ----------------------------------------------------------
-WALLPAPER_DIR="${HOME}/Pictures/Wallpapers"
+WALLPAPER_DIR="${HOME}/dotfiles/utils/wallpapers"
 
 # --- Determine wallpaper path -----------------------------------------------
 if [[ $# -ge 1 && -f "$1" ]]; then
@@ -42,11 +42,9 @@ WALLPAPER_NAME=$(basename "${WALLPAPER}")
 # --- Apply wallpaper --------------------------------------------------------
 if pgrep -x hyprpaper > /dev/null 2>&1; then
     # --- hyprpaper (primary) ------------------------------------------------
-    # Unload all current wallpapers, preload the new one, then set it
-    hyprctl hyprpaper unload all
-    hyprctl hyprpaper preload "${WALLPAPER}"
-    # The leading comma means "apply to all monitors"
-    hyprctl hyprpaper wallpaper ",${WALLPAPER}"
+    # Hyprpaper v0.8 uses a single IPC command with monitor, path and fit mode.
+    # The empty monitor target acts as the fallback wallpaper.
+    hyprctl hyprpaper wallpaper ", ${WALLPAPER}, cover"
 elif command -v swww > /dev/null 2>&1; then
     # --- swww (fallback) ----------------------------------------------------
     # Start swww daemon if not already running
