@@ -11,7 +11,7 @@
     # Packages
     home.packages = with pkgs; [
         # shell & terminal
-        zsh starship zoxide fzf lsd bat eza ripgrep fd tree htop btop yazi
+        zsh starship zoxide fzf lsd bat ripgrep fd tree htop btop yazi
 
         # development
         git lazygit tree-sitter gnumake cmake nodejs pkg-config
@@ -26,9 +26,6 @@
         # by CachyOS system packages. Nix is only used as a dotfile manager.
         # Install them via: pacman -S waybar rofi-wayland dunst hyprlock hypridle
         #                   hyprpaper grim slurp wl-clipboard cliphist wlogout
-        
-        # python
-        python311 # test pyenv
         
         # system libs
         stdenv.cc.cc.lib zlib
@@ -146,15 +143,13 @@
     home.file.".pi/agent/models.json".source = ./config/pi/models.json;
     home.file.".pi/agent/settings.json".source = config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/dotfiles/config/pi/settings.json";
     home.file.".pi/agent/keybindings.json".source = ./config/pi/keybindings.json;
-    home.file.".pi/agent/extensions/model-cost-extension.ts".source = ./config/pi/model-cost-extension.ts;
-    home.file.".pi/agent/extensions/session-manager-extension.ts".source = ./config/pi/session-manager-extension.ts;
-    home.file.".pi/agent/extensions/clipboard-image-path-extension.ts".source = ./config/pi/extensions/clipboard-image-path-extension.ts;
-    home.file.".pi/agent/extensions/project-manager" = { source = ./config/pi/project-manager; recursive = true; };
+    home.file.".pi/agent/extensions" = {
+      source = config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/dotfiles/config/pi/extensions";
+      force = true;
+    };
     home.file.".pi/agent/skills" = { source = ./config/pi/skills; recursive = true; };
     home.file.".pi/agent/prompts" = { source = ./config/pi/prompts; recursive = true; };
-    home.file.".pi/agent/themes/cachyos-neon.json".source = ./config/pi/themes/cachyos-neon.json;
-    home.file.".pi/agent/themes/bearded-coffee-night.json".source = ./config/pi/themes/bearded-coffee-night.json;
-    home.file.".pi/agent/themes/bearded-coffee-light.json".source = ./config/pi/themes/bearded-coffee-light.json;
+    home.file.".pi/agent/themes" = { source = ./config/pi/themes; recursive = true; };
 
     # Generate auth.json at activation from env var (keeps key out of repo)
     home.activation.piAuth = lib.hm.dag.entryAfter [ "writeBoundary" ] ''

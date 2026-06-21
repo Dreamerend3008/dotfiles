@@ -20,8 +20,5 @@
       inherit pkgs;
       modules = [ ./home.nix ];
     };
-
-    # Default package
-    packages.${system}.default = home-manager.packages.${system}.default;
   };
 }

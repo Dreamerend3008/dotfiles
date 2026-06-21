@@ -50,9 +50,10 @@
       "limitUsd": 20
     }
   },
-  "lastChangelogVersion": "0.79.4",
+  "lastChangelogVersion": "0.79.9",
   "packages": [
     "npm:pi-web-access",
-    "npm:context-mode"
+    "npm:context-mode",
+    "git:github.com/DietrichGebert/ponytail@6da37bfa7d0282522c7785759f4d2f1544015354"
   ]
 }

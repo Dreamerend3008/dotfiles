@@ -13,7 +13,7 @@ Home Manager-based dotfiles for my Arch/CachyOS setup.
 ## What this repo covers
 
 ### Shell and terminal
-- Zsh, Starship, Zoxide, FZF, LSD, Bat, Eza, Ripgrep, FD, Tree, Htop, Btop, Yazi
+- Zsh, Starship, Zoxide, FZF, LSD, Bat, Ripgrep, FD, Tree, Htop, Btop, Yazi
 - Kitty and Ghostty configs
 - Fastfetch and Clangd config
 - Utility aliases and helper functions in `home.nix`
@@ -22,7 +22,7 @@ Home Manager-based dotfiles for my Arch/CachyOS setup.
 - Git settings and aliases
 - Neovim config
 - Node.js, pkg-config, CMake, GNU Make
-- Python 3.11 and system libraries for local builds
+- System libraries for local builds
 
 ### Desktop / Hyprland
 - Modular Hyprland config under `config/hypr/`
@@ -31,8 +31,7 @@ Home Manager-based dotfiles for my Arch/CachyOS setup.
 - System desktop tools are intentionally expected from CachyOS / system packages, not Nix
 
 ### Pi terminal agent
-- Model, settings, keybinding, and extension config
-- Prompt, skill, theme, and project-manager resources
+- Model, settings, keybinding, extension, prompt, skill, and theme config
 - Out-of-store `settings.json` so Pi changes persist directly back into the repo
 - Activation-time Pi auth generation from `~/.secrets`
 
@@ -73,13 +72,9 @@ Home Manager-based dotfiles for my Arch/CachyOS setup.
     │   ├── prompts/
     │   ├── skills/
     │   ├── themes/
-    │   ├── project-manager/
     │   ├── keybindings.json
     │   ├── models.json
-    │   ├── settings.json
-    │   ├── model-cost-extension.ts
-    │   ├── usage-extension.ts
-    │   └── session-manager-extension.ts
+    │   └── settings.json
     ├── rofi/
     ├── starship.toml
     ├── waybar/
@@ -174,8 +169,7 @@ Pi is configured through files under `config/pi/` and linked into `~/.pi/agent/`
 
 - `settings.json` is intentionally linked out-of-store so changes from Pi persist in the repo
 - `models.json` defines the available models
-- `keybindings.json` and the `*-extension.ts` files provide Pi custom actions
-- `project-manager/` adds repo-aware project tooling
+- `keybindings.json` and `config/pi/extensions/` provide Pi custom actions
 - prompt, skill, and theme resources are linked from `config/pi/`
 
 ## Daily use
