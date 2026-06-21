@@ -306,5 +306,17 @@ require("lazy").setup({
       },
     },
   },
+
+  -- Render LaTeX math formulas as transparent PNGs (no unicode approximation)
+  {
+    "techwizrd/render-latex.nvim",
+    ft = "markdown",
+    opts = {
+      -- ponytail: disabled inline rendering to avoid unicode approximations
+      render = {
+        inline = false,
+      },
+    },
+  },
 })
 
