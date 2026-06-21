@@ -14,7 +14,8 @@ window-padding-x = 10
 window-padding-y = 10
 
 # Theme
-theme = dark:Catppuccin Mocha,light:Catppuccin Latte 
+theme = dark:Catppuccin Mocha
+#light:Catppuccin Latte 
 
 # keybindings
 keybind = performable:ctrl+h=goto_split:left
