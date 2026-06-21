@@ -4,6 +4,18 @@ import { spawnSync } from "node:child_process";
 import { existsSync, mkdirSync, readFileSync, readdirSync, statSync, writeFileSync } from "node:fs";
 import { homedir } from "node:os";
 import { basename, dirname, extname, join, relative, resolve } from "node:path";
+import {
+  compactWhitespace,
+  extractTextContent,
+  formatTimestamp,
+  getSessionsDir,
+  getSessionTitle,
+  getTitleCandidate,
+  walkSessions as walkSessionFiles,
+  summarizeSession,
+  type SessionFileEntry,
+  type SessionSummary,
+} from "../session-manager-extension";
 
 type ProjectManifest = {
   name: string;
@@ -42,27 +54,6 @@ type MemoryFile = {
   modified: Date;
 };
 
-type SessionFileEntry = {
-  type?: string;
-  id?: string;
-  timestamp?: string | number;
-  cwd?: string;
-  name?: string;
-  message?: {
-    role?: string;
-    content?: string | Array<{ type?: string; text?: string }>;
-  };
-};
-
-type SessionSummary = {
-  path: string;
-  cwd: string;
-  name?: string;
-  firstMessage: string;
-  messageCount: number;
-  modified: Date;
-};
-
 type LaunchResult = {
   mode: "tmux-window" | "tmux-detached" | "printed";
   message: string;
@@ -75,10 +66,6 @@ const DEFAULT_MEMORY_DIR = join(PROJECT_DIR, "memory");
 const DEFAULT_SKILLS_DIR = join(PROJECT_DIR, "skills");
 const MEMORY_INDEX_NAME = "INDEX.md";
 const DEFAULT_MEMORY_FILES = ["overview.md", "active-context.md"];
-
-function compactWhitespace(text: string): string {
-  return text.replace(/\s+/g, " ").trim();
-}
 
 function slugify(value: string): string {
   return value
@@ -111,10 +98,6 @@ function nowIso(): string {
 
 function getAgentDir(): string {
   return process.env.PI_CODING_AGENT_DIR || join(homedir(), ".pi", "agent");
-}
-
-function getSessionsDir(): string {
-  return process.env.PI_CODING_AGENT_SESSION_DIR || join(getAgentDir(), "sessions");
 }
 
 function getProjectRegistryPath(): string {
@@ -326,97 +309,11 @@ function createSkillTemplate(skillName: string, projectName: string, description
   return `---\nname: ${skillName}\ndescription: ${description || `Project-specific workflow for ${projectName}. Use when working on ${projectName}.`}\n---\n\n# ${skillName}\n\n## Purpose\n\nDescribe when this project-specific skill should be used.\n\n## Workflow\n\n1. Inspect the relevant files first.\n2. Follow the project memory in ../memory/ when needed.\n3. Make minimal, consistent changes.\n4. Validate the result.\n\n## References\n\n- Project overview: ../../memory/overview.md\n- Active context: ../../memory/active-context.md\n`;
 }
 
-function getTitleCandidate(text: string): string {
-  const compact = compactWhitespace(text);
-  if (!compact) return "";
-  if (compact.includes("<skill ")) return "";
-  return compact;
-}
-
-function extractTextContent(content: SessionFileEntry["message"]["content"]): string {
-  if (typeof content === "string") return compactWhitespace(content);
-  if (!Array.isArray(content)) return "";
-  return compactWhitespace(
-    content
-      .filter((block) => block?.type === "text" && typeof block.text === "string")
-      .map((block) => block.text)
-      .join(" "),
-  );
-}
-
-function walkSessionFiles(dir: string): string[] {
-  if (!existsSync(dir)) return [];
-  const files: string[] = [];
-  for (const entry of readdirSync(dir, { withFileTypes: true })) {
-    const fullPath = join(dir, entry.name);
-    if (entry.isDirectory()) files.push(...walkSessionFiles(fullPath));
-    else if (entry.isFile() && entry.name.endsWith(".jsonl")) files.push(fullPath);
-  }
-  return files;
-}
-
-function summarizeSession(path: string): SessionSummary {
-  let cwd = "";
-  let name = "";
-  let firstMessage = "";
-  let messageCount = 0;
-  let modified = statSync(path).mtime;
-
-  for (const line of readFileSync(path, "utf8").split("\n")) {
-    if (!line.trim()) continue;
-
-    let entry: SessionFileEntry;
-    try {
-      entry = JSON.parse(line) as SessionFileEntry;
-    } catch {
-      continue;
-    }
-
-    const timestamp = new Date(entry.timestamp ?? 0);
-    if (!Number.isNaN(timestamp.getTime()) && timestamp > modified) {
-      modified = timestamp;
-    }
-
-    if (entry.type === "session") {
-      cwd = entry.cwd ?? cwd;
-      continue;
-    }
-
-    if (entry.type === "session_info") {
-      name = compactWhitespace(entry.name ?? "") || name;
-      continue;
-    }
-
-    if (entry.type !== "message") continue;
-    messageCount += 1;
-
-    if (!firstMessage && entry.message?.role === "user") {
-      const candidate = getTitleCandidate(extractTextContent(entry.message.content));
-      if (candidate) firstMessage = candidate;
-    }
-  }
-
-  return { path, cwd, name: name || undefined, firstMessage, messageCount, modified };
-}
-
-function getSessionTitle(session: SessionSummary): string {
-  const explicitName = compactWhitespace(session.name ?? "");
-  if (explicitName) return explicitName;
-  const firstMessage = compactWhitespace(session.firstMessage);
-  if (!firstMessage) return basename(session.path, ".jsonl");
-  if (firstMessage.length <= 72) return firstMessage;
-  return `${firstMessage.slice(0, 69).trimEnd()}...`;
-}
-
 function getProjectSessions(cwd: string): SessionSummary[] {
   return walkSessionFiles(getSessionsDir())
     .map(summarizeSession)
     .filter((session) => resolve(session.cwd || "") === resolve(cwd))
     .sort((a, b) => b.modified.getTime() - a.modified.getTime());
-}
-
-function formatTimestamp(date: Date): string {
-  return Number.isNaN(date.getTime()) ? "unknown" : date.toISOString().replace("T", " ").replace(/\.\d{3}Z$/, "Z");
 }
 
 async function pickItem(ctx: any, items: SelectItem[], title: string): Promise<string | undefined> {

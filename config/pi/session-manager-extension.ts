@@ -4,7 +4,7 @@ import { randomUUID } from "node:crypto";
 import { appendFileSync, existsSync, readFileSync, readdirSync, statSync, unlinkSync } from "node:fs";
 import { basename, join } from "node:path";
 
-type SessionFileEntry = {
+export type SessionFileEntry = {
   type?: string;
   id?: string;
   timestamp?: string | number;
@@ -16,7 +16,7 @@ type SessionFileEntry = {
   };
 };
 
-type SessionSummary = {
+export type SessionSummary = {
   path: string;
   cwd: string;
   name?: string;
@@ -25,35 +25,29 @@ type SessionSummary = {
   modified: Date;
 };
 
-function getSessionsDir(): string {
+export function getSessionsDir(): string {
   return process.env.PI_CODING_AGENT_SESSION_DIR || `${process.env.HOME || ""}/.pi/agent/sessions`;
 }
 
-function walkSessions(dir: string): string[] {
+export function walkSessions(dir: string): string[] {
   if (!existsSync(dir)) return [];
-
-  const files: string[] = [];
-  for (const entry of readdirSync(dir, { withFileTypes: true })) {
-    const fullPath = join(dir, entry.name);
-    if (entry.isDirectory()) files.push(...walkSessions(fullPath));
-    else if (entry.isFile() && entry.name.endsWith(".jsonl")) files.push(fullPath);
-  }
-
-  return files;
+  return (readdirSync(dir, { recursive: true }) as unknown as string[])
+    .filter((name) => name.endsWith(".jsonl"))
+    .map((name) => join(dir, name));
 }
 
-function compactWhitespace(text: string): string {
+export function compactWhitespace(text: string): string {
   return text.replace(/\s+/g, " ").trim();
 }
 
-function getTitleCandidate(text: string): string {
+export function getTitleCandidate(text: string): string {
   const compact = compactWhitespace(text);
   if (!compact) return "";
   if (compact.includes("<skill ")) return "";
   return compact;
 }
 
-function extractTextContent(content: SessionFileEntry["message"]["content"]): string {
+export function extractTextContent(content: any): string {
   if (typeof content === "string") return compactWhitespace(content);
   if (!Array.isArray(content)) return "";
   return compactWhitespace(
@@ -64,7 +58,7 @@ function extractTextContent(content: SessionFileEntry["message"]["content"]): st
   );
 }
 
-function summarizeSession(path: string): SessionSummary {
+export function summarizeSession(path: string): SessionSummary {
   let cwd = "";
   let name = "";
   let firstMessage = "";
@@ -108,7 +102,7 @@ function summarizeSession(path: string): SessionSummary {
   return { path, cwd, name: name || undefined, firstMessage, messageCount, modified };
 }
 
-function getSessionTitle(session: SessionSummary): string {
+export function getSessionTitle(session: SessionSummary): string {
   const explicitName = compactWhitespace(session.name ?? "");
   if (explicitName) return explicitName;
 
@@ -118,7 +112,7 @@ function getSessionTitle(session: SessionSummary): string {
   return `${firstMessage.slice(0, 69).trimEnd()}...`;
 }
 
-function formatTimestamp(date: Date): string {
+export function formatTimestamp(date: Date): string {
   return Number.isNaN(date.getTime()) ? "unknown" : date.toISOString().replace("T", " ").replace(/\.\d{3}Z$/, "Z");
 }
 

@@ -2,7 +2,6 @@ import type { ExtensionAPI } from "@earendil-works/pi-coding-agent";
 import { existsSync, readFileSync, readdirSync } from "node:fs";
 import { homedir } from "node:os";
 import { join } from "node:path";
-import { Type } from "typebox";
 
 type PriceInfo = {
   inputUsdPer1M: number;
@@ -69,11 +68,13 @@ type MonthlySummary = {
   totalCost: number;
   sessionFilesScanned: number;
   assistantMessages: number;
+  byModel: Record<string, Totals>;
+  costByModel: Record<string, number>;
 };
 
 type BudgetLevel = "ok" | "warn" | "limit";
 
-const ModelCostParams = Type.Object({});
+const ModelCostParams = { type: "object", properties: {} } as const;
 
 const STATIC_PRICING: Record<string, PriceInfo> = {
   "gpt-5.4": { inputUsdPer1M: 2.5, cachedInputUsdPer1M: 0.25, outputUsdPer1M: 15 },
@@ -260,23 +261,15 @@ function isSameMonth(timestamp: unknown, spec: MonthSpec): boolean {
 
 function walkSessionFiles(dir: string): string[] {
   if (!existsSync(dir)) return [];
-
-  const files: string[] = [];
-  for (const entry of readdirSync(dir, { withFileTypes: true })) {
-    const fullPath = join(dir, entry.name);
-    if (entry.isDirectory()) {
-      files.push(...walkSessionFiles(fullPath));
-      continue;
-    }
-    if (entry.isFile() && entry.name.endsWith(".jsonl")) {
-      files.push(fullPath);
-    }
-  }
-  return files;
+  return (readdirSync(dir, { recursive: true }) as unknown as string[])
+    .filter((name) => name.endsWith(".jsonl"))
+    .map((name) => join(dir, name));
 }
 
 function collectMonthlySummary(ctx: any, spec: MonthSpec, settingsPricing: Record<string, PriceInfo>): MonthlySummary {
   const totals = emptyTotals();
+  const byModel: Record<string, Totals> = {};
+  const costByModel: Record<string, number> = {};
   const seenMessages = new Set<string>();
   const sessionFiles = walkSessionFiles(getSessionsDir());
   let totalCost = 0;
@@ -317,7 +310,12 @@ function collectMonthlySummary(ctx: any, spec: MonthSpec, settingsPricing: Recor
       addUsage(totals, usage);
 
       const modelId = String(entry.message.model ?? "unknown-model");
-      totalCost += estimateCostFromUsage(modelId, usage, ctx, settingsPricing);
+      byModel[modelId] ??= emptyTotals();
+      addUsage(byModel[modelId], usage);
+
+      const cost = estimateCostFromUsage(modelId, usage, ctx, settingsPricing);
+      costByModel[modelId] = (costByModel[modelId] ?? 0) + cost;
+      totalCost += cost;
     }
   }
 
@@ -327,6 +325,8 @@ function collectMonthlySummary(ctx: any, spec: MonthSpec, settingsPricing: Recor
     totalCost,
     sessionFilesScanned: sessionFiles.length,
     assistantMessages,
+    byModel,
+    costByModel,
   };
 }
 
@@ -455,6 +455,33 @@ function refreshStatus(ctx: any) {
   }
 }
 
+function formatMonthlyReport(ctx: any, summary: MonthlySummary): string {
+  const allTotals = summary.totals;
+  const totalTokens = allTotals.inputTokens + allTotals.outputTokens + allTotals.cacheReadTokens + allTotals.cacheWriteTokens;
+  const lines = [
+    `Pi usage for ${summary.label}`,
+    `Unique assistant turns: ${fmtInt(summary.assistantMessages)}`,
+    `Session files scanned: ${fmtInt(summary.sessionFilesScanned)}`,
+    `Session root: ${getSessionsDir()}`,
+    "",
+    "Totals",
+    `All models: ${fmtInt(totalTokens)} total (${fmtInt(allTotals.inputTokens)} in, ${fmtInt(allTotals.outputTokens)} out, ${fmtInt(allTotals.cacheReadTokens)} cache read, ${fmtInt(allTotals.cacheWriteTokens)} cache write) · ${fmtUsd(summary.totalCost)}`,
+  ];
+
+  const models = Object.entries(summary.byModel).sort((a, b) => (summary.costByModel[b[0]] ?? 0) - (summary.costByModel[a[0]] ?? 0));
+  if (models.length > 0) {
+    lines.push("", "By model");
+    for (const [modelId, totals] of models) {
+      const modelTokens = totals.inputTokens + totals.outputTokens + totals.cacheReadTokens + totals.cacheWriteTokens;
+      lines.push(
+        `${modelName(ctx, modelId)}: ${fmtInt(modelTokens)} total (${fmtInt(totals.inputTokens)} in, ${fmtInt(totals.outputTokens)} out, ${fmtInt(totals.cacheReadTokens)} cache read, ${fmtInt(totals.cacheWriteTokens)} cache write) · ${fmtUsd(summary.costByModel[modelId] ?? 0)}`,
+      );
+    }
+  }
+
+  return lines.join("\n");
+}
+
 export default function modelCostExtension(pi: ExtensionAPI) {
   pi.on("session_start", (_event, ctx) => {
     sessionBudgetNoticeLevel = "ok";
@@ -496,6 +523,38 @@ export default function modelCostExtension(pi: ExtensionAPI) {
           month: month.label,
           settings: settings.budgetLimits ?? {},
         },
+      });
+    },
+  });
+
+  pi.registerCommand("usage", {
+    description: "Show monthly token usage and estimated cost across all Pi sessions",
+    handler: async (args, ctx) => {
+      const month = parseMonthArg(args);
+      if (!month) {
+        if (ctx.hasUI) ctx.ui.notify("Usage: /usage [YYYY-MM]", "warning");
+        else console.log("Usage: /usage [YYYY-MM]");
+        return;
+      }
+
+      if (!ctx.isIdle()) {
+        await ctx.waitForIdle();
+      }
+
+      const settings = loadSettingsData();
+      const summary = collectMonthlySummary(ctx, month, settings.modelPricing ?? {});
+      const report = formatMonthlyReport(ctx, summary);
+
+      if (!ctx.hasUI) {
+        console.log(report);
+        return;
+      }
+
+      pi.sendMessage({
+        customType: "usage-report",
+        content: report,
+        display: true,
+        details: summary,
       });
     },
   });

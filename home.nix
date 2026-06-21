@@ -147,7 +147,6 @@
     home.file.".pi/agent/settings.json".source = config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/dotfiles/config/pi/settings.json";
     home.file.".pi/agent/keybindings.json".source = ./config/pi/keybindings.json;
     home.file.".pi/agent/extensions/model-cost-extension.ts".source = ./config/pi/model-cost-extension.ts;
-    home.file.".pi/agent/extensions/usage-extension.ts".source = ./config/pi/usage-extension.ts;
     home.file.".pi/agent/extensions/session-manager-extension.ts".source = ./config/pi/session-manager-extension.ts;
     home.file.".pi/agent/extensions/clipboard-image-path-extension.ts".source = ./config/pi/extensions/clipboard-image-path-extension.ts;
     home.file.".pi/agent/extensions/project-manager" = { source = ./config/pi/project-manager; recursive = true; };
