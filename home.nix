@@ -171,6 +171,20 @@ EOF
       fi
     '';
 
+    # pi-multiagent user agents must be regular files; symlinked user agents are denied.
+    home.activation.piAgents = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
+      SRC_DIR="$HOME/dotfiles/config/pi/agents"
+      DEST_DIR="$HOME/.pi/agent/agents"
+      mkdir -p "$DEST_DIR"
+      find "$DEST_DIR" -maxdepth 1 -type f -name '*.md' -delete 2>/dev/null || true
+      if [ -d "$SRC_DIR" ]; then
+        for src in "$SRC_DIR"/*.md; do
+          [ -e "$src" ] || continue
+          install -m 644 "$src" "$DEST_DIR/$(basename "$src")"
+        done
+      fi
+    '';
+
     # Env variables
     home.sessionVariables = {
             EDITOR = "nvim";

@@ -1,6 +1,6 @@
 {
   "defaultProvider": "azure-foundry",
-  "defaultModel": "FW-Kimi-K2.6",
+  "defaultModel": "gpt-5.4",
   "defaultThinkingLevel": "medium",
   "theme": "bearded-coffee-night",
   "terminal": {
@@ -54,6 +54,7 @@
   "packages": [
     "npm:pi-web-access",
     "npm:context-mode",
-    "git:github.com/DietrichGebert/ponytail@6da37bfa7d0282522c7785759f4d2f1544015354"
+    "git:github.com/DietrichGebert/ponytail@6da37bfa7d0282522c7785759f4d2f1544015354",
+    "git:github.com/Tiziano-AI/pi-multiagent"
   ]
 }
