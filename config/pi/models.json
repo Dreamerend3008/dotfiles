@@ -2,8 +2,8 @@
   "providers": {
     "azure-foundry": {
       "name": "Azure AI Foundry",
-      "baseUrl": "https://juanb-fndry.openai.azure.com/openai/v1",
-      "api": "openai-responses",
+      "baseUrl": "https://juanb-fndry.cognitiveservices.azure.com/openai",
+      "api": "azure-openai-responses",
       "apiKey": "$AZURE_OPENAI_API_KEY",
       "models": [
         {

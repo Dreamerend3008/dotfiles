@@ -1,6 +1,6 @@
 {
   "defaultProvider": "azure-foundry",
-  "defaultModel": "gpt-5.4",
+  "defaultModel": "FW-Kimi-K2.6",
   "defaultThinkingLevel": "medium",
   "theme": "bearded-coffee-night",
   "terminal": {
