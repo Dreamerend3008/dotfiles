@@ -216,14 +216,17 @@ function collectMonthlySummary(ctx: any, spec: MonthSpec, settingsPricing: Recor
         continue;
       }
 
-      if (entry?.type !== "message") continue;
-      if (entry?.message?.role !== "assistant") continue;
-      if (!isSameMonth(entry.timestamp, spec)) continue;
+      // Support both current v3 session rows ({ type: "message", message: ... })
+      // and older/direct message rows where role/usage/model live at the top level.
+      const message = entry?.type === "message" ? entry?.message : entry;
+      const timestamp = entry?.timestamp ?? message?.timestamp;
+      if (message?.role !== "assistant") continue;
+      if (!isSameMonth(timestamp, spec)) continue;
 
-      const messageKey = line.trim();
+      const messageKey = String(entry?.id ?? message?.responseId ?? line.trim());
       if (seenMessages.has(messageKey)) continue;
 
-      const usage = entry.message.usage as UsageLike | undefined;
+      const usage = message.usage as UsageLike | undefined;
       const usageTotals = emptyTotals();
       addUsage(usageTotals, usage);
       const totalTokens =
@@ -238,7 +241,7 @@ function collectMonthlySummary(ctx: any, spec: MonthSpec, settingsPricing: Recor
       assistantMessages += 1;
       addUsage(totals, usage);
 
-      const modelId = String(entry.message.model ?? "unknown-model");
+      const modelId = String(message.model ?? "unknown-model");
       byModel[modelId] ??= emptyTotals();
       addUsage(byModel[modelId], usage);
 

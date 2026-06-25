@@ -77,6 +77,8 @@ keymap("n", "<leader>fh", "<cmd>Telescope help_tags<CR>", { desc = "Help tags" }
 
 keymap("n", "<leader>o", "<cmd>Oil<CR>", { desc = "File explorer" })
 keymap("n", "<leader>tt", "<cmd>ToggleTerm<CR>", { desc = "Toggle terminal" })
+keymap("n", "<leader>ai", "<cmd>PiAsk<CR>", { desc = "Ask pi" })
+keymap("v", "<leader>ai", ":PiAskSelection<CR>", { desc = "Ask pi (selection)" })
 
 -- ┌────────────────────────────────────────────────────────────────────────────┐
 -- │ Obsidian / Notes Keymaps                                                    │

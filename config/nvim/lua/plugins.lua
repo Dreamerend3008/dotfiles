@@ -154,6 +154,7 @@ require("lazy").setup({
     opts = {
       image = {
         enabled = true,
+        math = { enabled = false }, -- let render-latex.nvim own Markdown math
         resolve = function(file, src)
           -- Let snacks handle absolute paths or web URLs directly.
           if src:match("^https?://") or src:match("^/") then
@@ -210,6 +211,16 @@ require("lazy").setup({
     cmd = "Oil",
     dependencies = { "nvim-tree/nvim-web-devicons" },
     config = true,
+  },
+  {
+    "pablopunk/pi.nvim",
+    cmd = { "PiAsk", "PiAskSelection", "PiCancel", "PiLog" },
+    config = function()
+      require("pi").setup({
+        provider = "azure-foundry",
+        model = "gpt-5.4-mini",
+      })
+    end,
   },
 
   -- ╭─────────────────────────────────────────────────────────────────────────╮
