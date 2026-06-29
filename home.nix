@@ -151,24 +151,33 @@
     home.file.".pi/agent/prompts" = { source = ./config/pi/prompts; recursive = true; };
     home.file.".pi/agent/themes" = { source = ./config/pi/themes; recursive = true; };
 
-    # Generate auth.json at activation from env var (keeps key out of repo)
+    # Generate auth.json at activation from env vars (keeps keys out of repo)
     home.activation.piAuth = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
       PI_DIR="$HOME/.pi/agent"
       mkdir -p "$PI_DIR"
       if [ -f "$HOME/.secrets" ]; then
         . "$HOME/.secrets"
       fi
-      if [ -n "$AZURE_OPENAI_API_KEY" ]; then
-        cat > "$PI_DIR/auth.json" <<EOF
-{
-  "azure-foundry": {
-    "type": "api_key",
-    "key": "$AZURE_OPENAI_API_KEY"
-  }
-}
-EOF
-        chmod 600 "$PI_DIR/auth.json"
-      fi
+      ${pkgs.python3}/bin/python <<'PY'
+import json
+import os
+from pathlib import Path
+
+pi_dir = Path(os.path.expanduser("~/.pi/agent"))
+pi_dir.mkdir(parents=True, exist_ok=True)
+auth_path = pi_dir / "auth.json"
+
+auth = {}
+azure = os.environ.get("AZURE_OPENAI_API_KEY")
+nvidia = os.environ.get("NVIDIA_NIM_API_KEY")
+if azure:
+    auth["azure-foundry"] = {"type": "api_key", "key": azure}
+if nvidia:
+    auth["nvidia-nim"] = {"type": "api_key", "key": nvidia}
+if auth:
+    auth_path.write_text(json.dumps(auth, indent=2) + "\n")
+    os.chmod(auth_path, 0o600)
+PY
     '';
 
     # pi-multiagent user agents must be regular files; symlinked user agents are denied.
