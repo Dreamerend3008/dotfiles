@@ -55,6 +55,19 @@
         "apiKey": "$NVIDIA_NIM_API_KEY",
         "models": [
             {
+                "id": "deepseek-ai/deepseek-v4-flash",
+                "input": ["text"],
+                "contextWindow": 262144,
+                "maxTokens": 16384,
+                "reasoning": true,
+                "cost": {
+                    "input": 0.0,
+                    "output": 0.0,
+                    "cacheRead": 0.0,
+                    "cacheWrite": 0
+                }
+            },
+            {
                 "id": "deepseek-ai/deepseek-v4-pro",
                 "input": ["text"],
                 "contextWindow": 262144,
