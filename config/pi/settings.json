@@ -1,6 +1,6 @@
 {
-  "defaultProvider": "azure-foundry",
-  "defaultModel": "gpt-5.4",
+  "defaultProvider": "nvidia-nim",
+  "defaultModel": "deepseek-ai/deepseek-v4-pro",
   "defaultThinkingLevel": "medium",
   "theme": "bearded-coffee-night",
   "terminal": {
@@ -21,7 +21,8 @@
   "enabledModels": [
     "azure-foundry/gpt-5.4-mini",
     "azure-foundry/gpt-5.4",
-    "azure-foundry/FW-Kimi-K2.6"
+    "azure-foundry/FW-Kimi-K2.6",
+    "nvidia-nim/deepseek-ai/deepseek-v4-pro"
   ],
   "modelPricing": {
     "gpt-5.4": {
@@ -55,6 +56,7 @@
     "npm:pi-web-access",
     "npm:context-mode",
     "git:github.com/DietrichGebert/ponytail@6da37bfa7d0282522c7785759f4d2f1544015354",
-    "git:github.com/Tiziano-AI/pi-multiagent"
+    "git:github.com/Tiziano-AI/pi-multiagent",
+    "git:github.com/xRyul/pi-nvidia-nim"
   ]
 }
