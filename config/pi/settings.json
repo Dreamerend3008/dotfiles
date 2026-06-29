@@ -1,6 +1,6 @@
 {
-  "defaultProvider": "nvidia-nim",
-  "defaultModel": "deepseek-ai/deepseek-v4-pro",
+  "defaultProvider": "azure-foundry",
+  "defaultModel": "gpt-5.4-mini",
   "defaultThinkingLevel": "medium",
   "theme": "bearded-coffee-night",
   "terminal": {
@@ -21,8 +21,7 @@
   "enabledModels": [
     "azure-foundry/gpt-5.4-mini",
     "azure-foundry/gpt-5.4",
-    "azure-foundry/FW-Kimi-K2.6",
-    "nvidia-nim/deepseek-ai/deepseek-v4-pro"
+    "azure-foundry/FW-Kimi-K2.6"
   ],
   "modelPricing": {
     "gpt-5.4": {
