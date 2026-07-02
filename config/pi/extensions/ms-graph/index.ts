@@ -66,10 +66,11 @@ async function runCli(command: string, payload: unknown) {
         parsed = JSON.parse(lines[lines.length - 1]!);
       }
       if (code === 0) return resolve(parsed);
-      reject(new Error(parsed?.error ?? stderr.trim() || `ms graph cli failed with code ${code}`));
+      const parsedError = parsed && parsed.error ? parsed.error : undefined;
+      reject(new Error(parsedError || stderr.trim() || `ms graph cli failed with code ${code}`));
     });
 
-    child.stdin.write(JSON.stringify(payload ?? {}));
+    child.stdin.write(JSON.stringify(payload == null ? {} : payload));
     child.stdin.end();
   });
 }
@@ -91,7 +92,7 @@ export default function msGraphExtension(pi: ExtensionAPI) {
     async execute() {
       const result = await runCli("login", {});
       const user = result.user;
-      return textResult(`Logged in as ${user.displayName ?? "unknown"} (${user.userPrincipalName ?? "unknown"})`, result);
+      return textResult(`Logged in as ${user.displayName || "unknown"} (${user.userPrincipalName || "unknown"})`, result);
     },
   });
 
@@ -104,7 +105,7 @@ export default function msGraphExtension(pi: ExtensionAPI) {
     async execute() {
       const result = await runCli("me", {});
       const user = result.user;
-      return textResult(`${user.displayName ?? "unknown"} <${user.userPrincipalName ?? user.mail ?? "unknown"}>`, result);
+      return textResult(`${user.displayName || "unknown"} <${user.userPrincipalName || user.mail || "unknown"}>`, result);
     },
   });
 
@@ -119,7 +120,7 @@ export default function msGraphExtension(pi: ExtensionAPI) {
     promptGuidelines: ["Use graph_calendar_list_events to inspect upcoming events before creating or editing one."],
     async execute(_id, params) {
       const result = await runCli("list-events", params);
-      const events = result.events ?? [];
+      const events = result.events || [];
       if (events.length === 0) return textResult("No upcoming events found.", result);
       const lines = events.map((event: any) => `- ${event.subject} | ${event.start?.dateTime} -> ${event.end?.dateTime} | id=${event.id}`);
       return textResult(lines.join("\n"), result);
