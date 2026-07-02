@@ -1,0 +1,9 @@
+[project]
+name = "ms-graph-agent"
+version = "0.1.0"
+description = "Minimal Microsoft Graph CLI for Pi calendar tools"
+requires-python = ">=3.11"
+dependencies = [
+  "msal>=1.31.0",
+  "requests>=2.32.0",
+]

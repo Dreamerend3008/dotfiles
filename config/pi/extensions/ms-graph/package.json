@@ -1,0 +1,15 @@
+{
+  "name": "pi-ms-graph-extension",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "pi": {
+    "extensions": ["./index.ts"]
+  },
+  "scripts": {
+    "check": "echo 'nothing to check'"
+  },
+  "dependencies": {
+    "typebox": "^1.0.52"
+  }
+}
