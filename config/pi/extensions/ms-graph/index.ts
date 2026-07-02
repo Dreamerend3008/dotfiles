@@ -127,14 +127,16 @@ export default function msGraphExtension(pi: ExtensionAPI) {
     },
   });
 
-  const eventSchema = Type.Object({
+  const eventFields = {
     subject: Type.String({ description: "Event title" }),
     start: Type.String({ description: "Start datetime in ISO format, e.g. 2026-07-02T15:30" }),
     end: Type.String({ description: "End datetime in ISO format, e.g. 2026-07-02T16:00" }),
     body: Type.Optional(Type.String({ description: "Optional event notes/body" })),
     location: Type.Optional(Type.String({ description: "Optional location" })),
     attendees: Type.Optional(Type.Array(Type.String({ description: "Attendee email" }))),
-  });
+  };
+
+  const eventSchema = Type.Object(eventFields);
 
   pi.registerTool({
     name: "graph_calendar_create_event",
@@ -153,12 +155,10 @@ export default function msGraphExtension(pi: ExtensionAPI) {
     name: "graph_calendar_update_event",
     label: "Graph Calendar Update Event",
     description: "Update a Microsoft calendar event. For now, pass the full replacement subject/start/end.",
-    parameters: Type.Composite([
-      eventSchema,
-      Type.Object({
-        id: Type.String({ description: "Existing event id" }),
-      }),
-    ]),
+    parameters: Type.Object({
+      id: Type.String({ description: "Existing event id" }),
+      ...eventFields,
+    }),
     promptGuidelines: ["Use graph_calendar_update_event to change an existing event after identifying its id with graph_calendar_list_events."],
     async execute(_id, params) {
       const result = await runCli("update-event", params);
