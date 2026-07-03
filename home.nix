@@ -117,6 +117,20 @@
         };
     };
 
+    # Tmux
+    programs.tmux = {
+        enable = true;
+        mouse = true;
+        shell = "${pkgs.zsh}/bin/zsh";
+        prefix = "C-Space";
+        extraConfig = builtins.readFile ./config/tmux.conf;
+        plugins = with pkgs.tmuxPlugins; [
+          catppuccin
+          resurrect
+          yank
+        ];
+    };
+
     # Dotfiles
     xdg.configFile."kitty" = { source = ./config/kitty; recursive = true; };
     xdg.configFile."ghostty" = { source = ./config/ghostty; recursive = true; };
