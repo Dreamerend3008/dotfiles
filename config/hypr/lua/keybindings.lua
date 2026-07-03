@@ -28,7 +28,7 @@ bind("Print", hl.dsp.exec_cmd(home .. "/dotfiles/config/hypr/scripts/screenshot.
 bind(mainMod .. " + Print", hl.dsp.exec_cmd(home .. "/dotfiles/config/hypr/scripts/screenshot.sh monitor"))
 bind("ALT + Print", hl.dsp.exec_cmd(home .. "/dotfiles/config/hypr/scripts/screenshot.sh window"))
 
-bind(mainMod .. " + L", hl.dsp.exec_cmd("hyprlock"))
+bind(mainMod .. " + SHIFT + L", hl.dsp.exec_cmd("hyprlock"))
 bind(mainMod .. " + N", hl.dsp.exec_cmd("dunstctl set-paused toggle"))
 bind(mainMod .. " + SHIFT + Q", hl.dsp.exec_cmd("wlogout -b 2"))
 bind(mainMod .. " + C", hl.dsp.exec_cmd("cliphist list | rofi -dmenu -theme catppuccin-mocha | cliphist decode | wl-copy"))

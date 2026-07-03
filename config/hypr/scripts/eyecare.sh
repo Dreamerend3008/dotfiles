@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # ==========================================================================
 # eyecare.sh — Eye comfort / night light toggle helper for Hyprland
-# Uses Hyprland's built-in decoration:screen_shader and notify-send
+# Uses Hyprland's built-in screen_shader and notify-send
 # Usage: eyecare.sh [toggle|on|off|warm|warmer|cool|status]
 # ==========================================================================
 
@@ -15,13 +15,17 @@ WARMER_SHADER="${SHADER_DIR}/eyecare-warmer.frag"
 COOL_SHADER="${SHADER_DIR}/eyecare-cool.frag"
 DEFAULT_SHADER="[[EMPTY]]"
 
+lua_escape() {
+    python -c 'import sys; s=sys.argv[1]; print(s.replace("\\", "\\\\").replace("\x27", "\\\x27"))' "$1"
+}
+
 get_current_shader() {
-    hyprctl getoption decoration:screen_shader 2>/dev/null | awk -F': ' '/^str:/ {print $2}'
+    hyprctl getoption decoration.screen_shader 2>/dev/null | awk -F': ' '/^str:/ {print $2}'
 }
 
 set_shader() {
     local shader="$1"
-    hyprctl keyword decoration:screen_shader "${shader}" >/dev/null
+    hyprctl eval "hl.config({ decoration = { screen_shader = '$(lua_escape "$shader")' } })" >/dev/null
 }
 
 current_label() {
