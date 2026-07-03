@@ -1,0 +1,28 @@
+hl.config({
+    input = {
+        kb_layout = "us",
+        kb_options = "compose:ralt",
+        numlock_by_default = true,
+        repeat_rate = 50,
+        repeat_delay = 300,
+        sensitivity = 0,
+        accel_profile = "flat",
+        force_no_accel = false,
+        left_handed = false,
+        scroll_method = "2fg",
+        scroll_button = 0,
+        natural_scroll = false,
+        follow_mouse = 1,
+        mouse_refocus = true,
+        touchpad = {
+            natural_scroll = true,
+            disable_while_typing = true,
+            tap_to_click = true,
+            drag_lock = false,
+            tap_and_drag = true,
+            scroll_factor = 1.0,
+            middle_button_emulation = false,
+            clickfinger_behavior = false,
+        },
+    },
+})
