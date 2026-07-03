@@ -4,3 +4,5 @@ result
 # Secrets — NEVER commit API keys
 .secrets
 auth.json
+
+/config/pi/extensions/ms-graph/.venv/
