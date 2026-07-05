@@ -78,7 +78,7 @@
 
 | Keybind | Action |
 |---------|--------|
-| `Super + L` | Lock screen |
+| `Super + ALT + L` | Lock screen |
 | `Super + Shift + Q` | Power menu (wlogout) |
 | `Super + N` | Toggle notifications |
 | `Super + C` | Clipboard history |
