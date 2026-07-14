@@ -4,13 +4,12 @@
 ;; ponytail: placeholder email so Doom features stop asking; replace when you care.
 (setq user-mail-address "harry@example.com")
 
-(setq doom-theme 'doom-one
+;; theme
+(setq doom-theme 'catppuccin
+      catppuccin-flavor 'mocha; Options 'latte, 'frappe, 'macchiato, 'mocha
       display-line-numbers-type 'relative
       org-directory "~/Notes/org/")
 
-;; Theme
-(setq catppuccin-flavor 'mocha); Options 'latte, 'frappe, 'macchiato, 'mocha
-(load-theme 'catppuccin t t)
 
 ;; Use the first font that actually exists on this machine.
 (let ((mono (cond ((find-font (font-spec :family "JetBrainsMono Nerd Font")) "JetBrainsMono Nerd Font")
