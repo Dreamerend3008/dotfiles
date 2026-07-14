@@ -6,16 +6,32 @@
     home.stateVersion = "24.05";
     news.display = "silent";
 
+
     programs.home-manager.enable = true;
 
     # Packages
     home.packages = with pkgs; [
         # shell & terminal
-        zsh starship zoxide fzf lsd bat ripgrep fd tree htop btop yazi
+        zsh 
+        starship 
+        zoxide 
+        fzf 
+        lsd 
+        bat 
+        ripgrep 
+        fd 
+        tree 
+        htop 
+        btop 
+        yazi
 
         # development
         git lazygit tree-sitter gnumake cmake nodejs pkg-config
 
+        # emacs
+        gnutls
+        imagemagick
+        sqlite
         
         # utilities
         fastfetch curl wget unzip jq ponysay zip
@@ -29,6 +45,7 @@
         
         # system libs
         stdenv.cc.cc.lib zlib
+
     ];
 
     # ZSH
@@ -141,7 +158,13 @@
     xdg.configFile."rofi" = { source = ./config/rofi; recursive = true; };
     xdg.configFile."dunst" = { source = ./config/dunst; recursive = true; };
     xdg.configFile."wlogout" = { source = ./config/wlogout; recursive = true; };
-    
+
+    # Doom emacs
+    xdg.configFile."doom" = { 
+        source = config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/dotfiles/config/pi/settings.json"; 
+        recursive = true; 
+    };
+
     # Hyprland
     xdg.configFile."hypr" = { 
         source = ./config/hypr; 
@@ -213,11 +236,14 @@ PY
             EDITOR = "nvim";
             VISUAL = "nvim";
             NPM_CONFIG_PREFIX = "$HOME/.npm-global";
-            # Silence Node experimental warnings (e.g. context-mode mcp-bridge SQLite warning)
+            # Silence Node experimental warnings
             NODE_OPTIONS = "--no-warnings=ExperimentalWarning";
             NODE_NO_WARNINGS = "1";
     };
-    home.sessionPath = [ "$HOME/.npm-global/bin" ];
+    home.sessionPath = [ 
+        "$HOME/.npm-global/bin" 
+        "$HOME/.config/emacs/bin" 
+    ];
 
     home.language = {
       base = "en_US.UTF-8";

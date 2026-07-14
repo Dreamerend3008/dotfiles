@@ -77,13 +77,48 @@ require("lazy").setup({
   -- Conform - code formatting
   {
     "stevearc/conform.nvim",
-    opts = {
-      formatters_by_ft = {
-        cpp    = { "clang-format" },  -- C++ formatting
-        lua    = { "stylua" },        -- Lua formatting
-        python = { "black" },         -- Python formatting
-      },
-    },
+    opts = function()
+      local function indent_width(bufnr)
+        local shiftwidth = vim.bo[bufnr].shiftwidth
+        if shiftwidth > 0 then
+          return shiftwidth
+        end
+        local tabstop = vim.bo[bufnr].tabstop
+        if tabstop > 0 then
+          return tabstop
+        end
+        return 4
+      end
+
+      return {
+        formatters_by_ft = {
+          cpp    = { "clang-format" },  -- C++ formatting
+          lua    = { "stylua" },        -- Lua formatting
+          python = { "black" },         -- Python formatting
+        },
+        formatters = {
+          ["clang-format"] = {
+            append_args = function(self, ctx)
+              local width = indent_width(ctx.buf)
+              local use_tab = vim.bo[ctx.buf].expandtab and "Never" or "ForIndentation"
+              return {
+                "--style={BasedOnStyle: LLVM, IndentWidth: " .. width .. ", TabWidth: " .. vim.bo[ctx.buf].tabstop .. ", UseTab: " .. use_tab .. "}",
+              }
+            end,
+          },
+          stylua = {
+            append_args = function(self, ctx)
+              return {
+                "--indent-type",
+                vim.bo[ctx.buf].expandtab and "Spaces" or "Tabs",
+                "--indent-width",
+                tostring(indent_width(ctx.buf)),
+              }
+            end,
+          },
+        },
+      }
+    end,
   },
 
   -- ╭─────────────────────────────────────────────────────────────────────────╮
@@ -330,4 +365,8 @@ require("lazy").setup({
     },
   },
 })
+
+vim.keymap.set("n", "<leader>f", function()
+  require("conform").format({ async = true, lsp_format = "fallback" })
+end, { desc = "Format code" })
 
