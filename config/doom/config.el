@@ -8,9 +8,16 @@
       display-line-numbers-type 'relative
       org-directory "~/Notes/org/")
 
-;; Reasonable fonts if installed; harmless if not.
-(setq doom-font (font-spec :family "JetBrainsMono Nerd Font" :size 14)
-      doom-variable-pitch-font (font-spec :family "Sans Serif" :size 14))
+;; Use the first font that actually exists on this machine.
+(let ((mono (cond ((find-font (font-spec :family "JetBrainsMono Nerd Font")) "JetBrainsMono Nerd Font")
+                  ((find-font (font-spec :family "MesloLGMDZ Nerd Font")) "MesloLGMDZ Nerd Font")
+                  ((find-font (font-spec :family "Noto Sans Mono")) "Noto Sans Mono")))
+      (sans (cond ((find-font (font-spec :family "Fira Sans")) "Fira Sans")
+                  ((find-font (font-spec :family "Sans Serif")) "Sans Serif"))))
+  (when mono
+    (setq doom-font (font-spec :family mono :size 14)))
+  (when sans
+    (setq doom-variable-pitch-font (font-spec :family sans :size 14))))
 
 (after! doom-dashboard
   (setq doom-dashboard-banner-dir nil
