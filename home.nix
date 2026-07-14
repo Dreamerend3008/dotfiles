@@ -245,7 +245,7 @@ PY
     };
     home.sessionPath = [ 
         "$HOME/.npm-global/bin" 
-        "$HOME/.config/emacs/bin" 
+        "$HOME/.config/emacs/bin:$PATH" 
     ];
 
     home.language = {

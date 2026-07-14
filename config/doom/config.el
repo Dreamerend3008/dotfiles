@@ -9,9 +9,9 @@
       org-directory "~/Notes/org/")
 
 ;; Theme
-(setq catpuccin-flavor 'mocha); Options 'latte, 'frappe, 'macchiato, 'mocha
-(load-theme 'catpuccin t t)
-
+(setq catppuccin-flavor 'mocha); Options 'latte, 'frappe, 'macchiato, 'mocha
+(load-theme 'catppuccin t t)   ;
+;;
 ;; Use the first font that actually exists on this machine.
 (let ((mono (cond ((find-font (font-spec :family "JetBrainsMono Nerd Font")) "JetBrainsMono Nerd Font")
                   ((find-font (font-spec :family "MesloLGMDZ Nerd Font")) "MesloLGMDZ Nerd Font")
