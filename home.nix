@@ -32,6 +32,7 @@
         gnutls
         imagemagick
         sqlite
+        shellcheck
         
         # utilities
         fastfetch curl wget unzip jq ponysay zip
@@ -159,10 +160,12 @@
     xdg.configFile."dunst" = { source = ./config/dunst; recursive = true; };
     xdg.configFile."wlogout" = { source = ./config/wlogout; recursive = true; };
 
-    # Doom emacs
-    xdg.configFile."doom" = { 
-        source = config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/dotfiles/config/pi/settings.json"; 
-        recursive = true; 
+    # Doom Emacs
+    xdg.configFile."doom" = {
+        source = ./config/doom;
+        recursive = true;
+        force = true;
+        onChange = "doom sync || true";
     };
 
     # Hyprland

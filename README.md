@@ -281,6 +281,19 @@ High-level pieces:
 - `completion.lua` — autocomplete
 - `cp.lua` — competitive-programming helpers
 
+### Emacs
+
+Install emacs 
+
+sudo pacman -S emacs
+
+Install Doom emacs
+
+git clone --depth 1 https://github.com/doomemacs/doomemacs ~/.config/emacs
+
+~/.config/emacs/bin/doom install
+
+
 ### Pi terminal agent
 
 Pi files live under `config/pi/` and are linked into `~/.pi/agent/`.
