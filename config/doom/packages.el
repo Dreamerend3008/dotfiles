@@ -2,3 +2,5 @@
 
 ;; Add extra packages here with (package! some-package)
 (package! catppuccin-theme)
+(package! monokai-pro-theme)
+(package! drag-stuff)

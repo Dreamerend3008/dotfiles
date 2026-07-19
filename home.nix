@@ -29,10 +29,21 @@
         git lazygit tree-sitter gnumake cmake nodejs pkg-config
 
         # emacs
+        emacs
         gnutls
         imagemagick
         sqlite
         shellcheck
+        nixfmt-rfc-style
+        nerd-fonts.symbols-only
+        clang-tools
+        lua-language-server
+        nil
+        pyright
+        black
+        ruff
+        stylua
+        gdb
         
         # utilities
         fastfetch curl wget unzip jq ponysay zip
@@ -165,7 +176,7 @@
         source = ./config/doom;
         recursive = true;
         force = true;
-        onChange = "doom sync || true";
+        onChange = "command -v doom >/dev/null && doom sync || true";
     };
 
     # Hyprland

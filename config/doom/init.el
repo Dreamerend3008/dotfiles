@@ -6,7 +6,7 @@
 
        :ui
        doom
-       doom-dashboard
+       dashboard
        hl-todo
        modeline
        ophints
@@ -19,6 +19,7 @@
        (evil +everywhere)
        file-templates
        fold
+       format
        snippets
        (whitespace +guess +trim)
 
@@ -36,16 +37,24 @@
 
        :tools
        (eval +overlay)
+       (lsp +eglot)
        lookup
        magit
 
        :lang
        emacs-lisp
+       (cc +lsp)
+       (lua +lsp)
        markdown
-       nix
+       (nix +lsp)
        org
+       (python +lsp +pyright)
        sh
        yaml
+
+       :os
+       tty
+
 
        :config
        (default +bindings +smartparens))

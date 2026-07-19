@@ -42,6 +42,8 @@ type MonthSpec = {
   year: number;
   month: number;
   label: string;
+  start: Date;
+  end: Date;
 };
 
 type MonthlySummary = {
@@ -152,13 +154,30 @@ function modelName(ctx: any, modelId: string): string {
   return found?.name ?? modelId;
 }
 
+const BILLING_CYCLE_START_DAY = 13;
+
+function formatDateLabel(date: Date): string {
+  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
+}
+
+function billingPeriodFor(year: number, month: number): MonthSpec {
+  const start = new Date(year, month, BILLING_CYCLE_START_DAY);
+  const end = new Date(year, month + 1, BILLING_CYCLE_START_DAY);
+  return {
+    year,
+    month,
+    label: `${formatDateLabel(start)} to ${formatDateLabel(end)}`,
+    start,
+    end,
+  };
+}
+
 function currentMonth(): MonthSpec {
   const now = new Date();
-  return {
-    year: now.getFullYear(),
-    month: now.getMonth(),
-    label: `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`,
-  };
+  const anchor = now.getDate() >= BILLING_CYCLE_START_DAY
+    ? new Date(now.getFullYear(), now.getMonth(), 1)
+    : new Date(now.getFullYear(), now.getMonth() - 1, 1);
+  return billingPeriodFor(anchor.getFullYear(), anchor.getMonth());
 }
 
 function parseMonthArg(arg: string): MonthSpec | null {
@@ -174,18 +193,14 @@ function parseMonthArg(arg: string): MonthSpec | null {
     return null;
   }
 
-  return {
-    year,
-    month: monthOneBased - 1,
-    label: `${year}-${String(monthOneBased).padStart(2, "0")}`,
-  };
+  return billingPeriodFor(year, monthOneBased - 1);
 }
 
 function isSameMonth(timestamp: unknown, spec: MonthSpec): boolean {
   if (typeof timestamp !== "string" && typeof timestamp !== "number") return false;
   const date = new Date(timestamp);
   if (Number.isNaN(date.getTime())) return false;
-  return date.getFullYear() === spec.year && date.getMonth() === spec.month;
+  return date >= spec.start && date < spec.end;
 }
 
 function walkSessionFiles(dir: string): string[] {
@@ -266,7 +281,7 @@ function formatMonthlyReport(ctx: any, summary: MonthlySummary): string {
   const allTotals = summary.totals;
   const totalTokens = allTotals.inputTokens + allTotals.outputTokens + allTotals.cacheReadTokens + allTotals.cacheWriteTokens;
   const lines = [
-    `Pi usage for ${summary.label}`,
+    `Pi usage for billing period ${summary.label}`,
     `Unique assistant turns: ${fmtInt(summary.assistantMessages)}`,
     `Session files scanned: ${fmtInt(summary.sessionFilesScanned)}`,
     `Session root: ${getSessionsDir()}`,
@@ -305,12 +320,12 @@ export default function usageExtension(pi: ExtensionAPI) {
   });
 
   pi.registerCommand("usage", {
-    description: "Show monthly token usage and estimated cost across all Pi sessions",
+    description: "Show billing-period token usage and estimated cost across all Pi sessions",
     handler: async (args, ctx) => {
       const month = parseMonthArg(args);
       if (!month) {
-        if (ctx.hasUI) ctx.ui.notify("Usage: /usage [YYYY-MM]", "warning");
-        else console.log("Usage: /usage [YYYY-MM]");
+        if (ctx.hasUI) ctx.ui.notify("Usage: /usage [YYYY-MM]  (billing cycle starts on the 13th)", "warning");
+        else console.log("Usage: /usage [YYYY-MM]  (billing cycle starts on the 13th)");
         return;
       }
 
