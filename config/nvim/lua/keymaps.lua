@@ -17,6 +17,10 @@ local opts = { noremap = true, silent = true }
 -- │ General Keymaps                                                             │
 -- └────────────────────────────────────────────────────────────────────────────┘
 
+-- Easy Escape
+keymap("i", "jk", "<Esc>", { desc = "Exit insert mode" })
+
+
 -- Save file with Ctrl+S (works in normal and insert mode)
 keymap("n", "<C-s>", ":w<CR>", { desc = "Save file" })
 keymap("i", "<C-s>", "<Esc>:w<CR>a", { desc = "Save file" })
