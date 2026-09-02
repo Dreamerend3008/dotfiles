@@ -1,6 +1,6 @@
 hl.config({
     input = {
-        kb_layout = "us",
+        kb_layout = "us,es",
         kb_options = "compose:ralt,caps:escape",
         numlock_by_default = true,
         repeat_rate = 50,

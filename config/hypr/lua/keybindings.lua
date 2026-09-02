@@ -36,6 +36,9 @@ bind(mainMod .. " + SHIFT + C", hl.dsp.exec_cmd("cliphist wipe"))
 bind(mainMod .. " + W", hl.dsp.exec_cmd(home .. "/.config/hypr/scripts/wallpaper.sh"))
 bind(mainMod .. " + SHIFT + G", hl.dsp.exec_cmd(home .. "/.config/hypr/scripts/gamemode.sh"))
 
+-- Change language
+bind("SUPER, SPACE", hl.dsp.exec_cmd("hyprctl switchxkblayout all next"))
+
 for i, mode in ipairs({ "toggle", "warm", "warmer", "cool", "off" }) do
     bind(mainMod .. " + SHIFT + F" .. (7 + i), hl.dsp.exec_cmd(home .. "/dotfiles/config/hypr/scripts/eyecare.sh " .. mode))
 end

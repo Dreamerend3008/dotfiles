@@ -1,6 +1,6 @@
 {
-  "defaultProvider": "azure-foundry",
-  "defaultModel": "gpt-5.4",
+  "defaultProvider": "antigravity",
+  "defaultModel": "gemini-3.7-flash",
   "defaultThinkingLevel": "medium",
   "theme": "bearded-coffee-night",
   "terminal": {
@@ -21,7 +21,9 @@
   "enabledModels": [
     "azure-foundry/gpt-5.4-mini",
     "azure-foundry/gpt-5.4",
-    "azure-foundry/FW-Kimi-K2.6"
+    "azure-foundry/FW-Kimi-K2.6",
+    "antigravity/gemini-3.7-flash",
+    "antigravity/gemini-3.1-pro"
   ],
   "modelPricing": {
     "gpt-5.4": {
