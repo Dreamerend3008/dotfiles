@@ -46,7 +46,7 @@ local function get_cmd_for_file(file, ext, bin)
     local cxx = find_executable({ "g++", "clang++", "c++" })
     if not cxx then return nil, "No C++ compiler found (g++, clang++)" end
     return {
-      compile = string.format("%s -std=c++17 -O2 -Wall -Wextra -fsanitize=address,undefined -g %s -o %s", cxx, se(file), se(bin)),
+      compile = string.format("%s -std=c++17 -O3 -Wall -Wextra %s -o %s", cxx, se(file), se(bin)),
       run = bin,
     }
   end
@@ -56,7 +56,7 @@ local function get_cmd_for_file(file, ext, bin)
     local cc = find_executable({ "gcc", "clang", "cc" })
     if not cc then return nil, "No C compiler found (gcc, clang)" end
     return {
-      compile = string.format("%s -std=c11 -O2 -Wall -Wextra -fsanitize=address,undefined -g %s -o %s", cc, se(file), se(bin)),
+      compile = string.format("%s -std=c11 -O3 -Wall -Wextra %s -o %s", cc, se(file), se(bin)),
       run = bin,
     }
   end
@@ -194,7 +194,7 @@ end
 local cp_job_id = nil
 local cp_timeout_timer = nil
 
-local DEFAULT_TIMEOUT_MS = 1000
+local DEFAULT_TIMEOUT_MS = 2000
 local BRUTE_TIMEOUT_MS = 30000
 
 local function format_exit_code(exit_code)

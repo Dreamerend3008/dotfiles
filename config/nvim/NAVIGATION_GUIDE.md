@@ -230,8 +230,8 @@ The output shows:
 
 | Language | Extensions | Compiler/Runtime |
 |----------|------------|------------------|
-| C++ | `.cpp`, `.cc`, `.cxx`, `.C` | g++/clang++ with sanitizers |
-| C | `.c` | gcc/clang with sanitizers |
+| C++ | `.cpp`, `.cc`, `.cxx`, `.C` | g++/clang++ (-O3) |
+| C | `.c` | gcc/clang (-O3) |
 | Python | `.py` | python3/python |
 | Java | `.java` | javac + java |
 | JavaScript | `.js`, `.mjs` | node |

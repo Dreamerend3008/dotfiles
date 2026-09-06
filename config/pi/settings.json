@@ -23,7 +23,10 @@
     "azure-foundry/gpt-5.4",
     "azure-foundry/FW-Kimi-K2.6",
     "antigravity/gemini-3.7-flash",
-    "antigravity/gemini-3.1-pro"
+    "antigravity/gemini-3.1-pro",
+    "antigravity/claude-opus-4-6",
+    "antigravity/claude-sonnet-4-6",
+    "antigravity/gpt-oss-120b"
   ],
   "modelPricing": {
     "gpt-5.4": {
