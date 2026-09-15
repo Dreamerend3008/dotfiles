@@ -218,7 +218,10 @@ pi_dir = Path(os.path.expanduser("~/.pi/agent"))
 pi_dir.mkdir(parents=True, exist_ok=True)
 auth_path = pi_dir / "auth.json"
 
-auth = {}
+try:
+    auth = json.loads(auth_path.read_text()) if auth_path.exists() else {}
+except (json.JSONDecodeError, OSError):
+    auth = {}
 azure = os.environ.get("AZURE_OPENAI_API_KEY")
 nvidia = os.environ.get("NVIDIA_NIM_API_KEY")
 if azure:
