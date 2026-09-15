@@ -19,9 +19,9 @@
     "xhigh": 16384
   },
   "enabledModels": [
-    "azure-foundry/gpt-5.4-mini",
-    "azure-foundry/gpt-5.4",
-    "azure-foundry/FW-Kimi-K2.6",
+    "azure-foundry/gpt-5.6-sol",
+    "azure-foundry/gpt-5.6-terra",
+    "azure-foundry/gpt-5.6-luna",
     "antigravity/gemini-3.7-flash",
     "antigravity/gemini-3.1-pro",
     "antigravity/claude-opus-4-6",
@@ -55,7 +55,7 @@
       "limitUsd": 20
     }
   },
-  "lastChangelogVersion": "0.84.3",
+  "lastChangelogVersion": "0.85.1",
   "packages": [
     "npm:pi-web-access",
     "npm:context-mode",
