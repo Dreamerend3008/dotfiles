@@ -7,43 +7,43 @@
       "apiKey": "$AZURE_OPENAI_API_KEY",
       "models": [
         {
-          "id": "gpt-5.4-mini",
-          "name": "GPT-5.4 Mini (Azure Foundry)",
+          "id": "gpt-5.6-sol",
+          "name": "GPT-5.6-sol (Azure Foundry)",
           "input": ["text", "image"],
           "contextWindow": 1047576,
           "maxTokens": 16384,
           "cost": {
-            "input": 0.75,
-            "output": 4.5,
-            "cacheRead": 0.08,
-            "cacheWrite": 0
+            "input": 10,
+            "output": 45,
+            "cacheRead": 1,
+            "cacheWrite": 12.50
           }
         },
         {
-          "id": "gpt-5.4",
-          "name": "GPT-5.4 (Azure Foundry)",
+          "id": "gpt-5.6-terra",
+          "name": "GPT-5.6-terra (Azure Foundry)",
           "input": ["text", "image"],
           "contextWindow": 1047576,
           "maxTokens": 16384,
           "reasoning": true,
           "cost": {
-            "input": 2.5,
-            "output": 15,
-            "cacheRead": 0.25,
-            "cacheWrite": 0
+            "input": 4,
+            "output": 18,
+            "cacheRead": 0.40,
+            "cacheWrite": 5
           }
         },
         {
-          "id": "FW-Kimi-K2.6",
+          "id": "gpt-5.6-luna",
           "name": "FW-Kimi-K2 (Azure Foundry)",
           "contextWindow": 262144,
           "maxTokens": 16384,
           "reasoning": true,
           "cost": {
-            "input": 1.045,
-            "output": 4.4,
-            "cacheRead": 0.176,
-            "cacheWrite": 0
+            "input": 0.40,
+            "output": 1.80,
+            "cacheRead": 0.04,
+            "cacheWrite": 0.50
           }
         }
       ]
