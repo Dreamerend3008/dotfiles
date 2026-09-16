@@ -82,13 +82,21 @@ local function setup_native()
     vim.lsp.enable("lua_ls")
   end
 
-  if vim.fn.exepath("pyright-langserver") ~= "" then
-    vim.lsp.config("pyright", {
-      cmd = { "pyright-langserver", "--stdio" },
+  if vim.fn.exepath("basedpyright-langserver") ~= "" then
+    vim.lsp.config("basedpyright", {
+      cmd = { "basedpyright-langserver", "--stdio" },
       filetypes = { "python" },
-      root_markers = { "pyproject.toml", "setup.py", "setup.cfg", "requirements.txt", ".git" },
+      root_markers = { "pyrightconfig.json", "pyproject.toml", "uv.lock", "poetry.lock", "setup.py", "setup.cfg", "requirements.txt", ".git" },
+      settings = {
+        basedpyright = {
+          analysis = {
+            typeCheckingMode = "standard",
+            diagnosticMode = "openFilesOnly",
+          },
+        },
+      },
     })
-    vim.lsp.enable("pyright")
+    vim.lsp.enable("basedpyright")
   end
 end
 
@@ -128,8 +136,18 @@ local function setup_legacy()
     lspconfig.lua_ls.setup({ capabilities = capabilities })
   end
 
-  if vim.fn.exepath("pyright-langserver") ~= "" then
-    lspconfig.pyright.setup({ capabilities = capabilities })
+  if vim.fn.exepath("basedpyright-langserver") ~= "" then
+    lspconfig.basedpyright.setup({
+      capabilities = capabilities,
+      settings = {
+        basedpyright = {
+          analysis = {
+            typeCheckingMode = "standard",
+            diagnosticMode = "openFilesOnly",
+          },
+        },
+      },
+    })
   end
 end
 

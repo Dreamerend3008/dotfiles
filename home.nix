@@ -39,7 +39,7 @@
         clang-tools
         lua-language-server
         nil
-        pyright
+        basedpyright
         black
         ruff
         stylua
