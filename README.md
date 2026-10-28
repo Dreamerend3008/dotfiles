@@ -122,6 +122,10 @@ Restart your shell after this.
 This repo is meant to be applied with **Home Manager standalone**.
 Install Home Manager for your machine first, then use `home-manager switch --flake ...` from this repo.
 
+```bash
+nix run home-manager/master -- switch --flake .#harry
+```
+
 ## 4. Install required system packages
 
 These are intentionally **not** managed by Nix here and should come from your distro.
