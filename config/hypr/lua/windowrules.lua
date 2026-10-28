@@ -54,6 +54,9 @@ local float_classes = {
     "^(qt6ct)$",
     "^(org.gnome.Calculator)$",
     "^(gnome-calculator)$",
+    "^(qalculate-gtk)$",
+    "^(qalculate-qt)$",
+    "^(org.kde.kcalc)$",
     "^(org.gnome.Settings)$",
     "^(org.gnome.SystemMonitor)$",
     "^(org.kde.ark)$",
@@ -70,6 +73,9 @@ end
 wr("float-thunar-progress", { class = "^(thunar)$", title = "^(File Operation Progress)$" }, { float = true })
 wr("float-thunar-replace", { class = "^(thunar)$", title = "^(Confirm to replace files)$" }, { float = true })
 wr("float-nautilus-properties", { class = "^(org.gnome.Nautilus)$", title = "^(Properties)$" }, { float = true })
+
+wr("calc-size", { class = "^(qalculate-gtk|qalculate-qt|org.kde.kcalc)$" }, { size = "520 620" })
+wr("calc-center", { class = "^(qalculate-gtk|qalculate-qt|org.kde.kcalc)$" }, { center = true })
 
 wr("pip-float", { title = "^(Picture-in-Picture)$" }, { float = true })
 wr("pip-pin", { title = "^(Picture-in-Picture)$" }, { pin = true })
