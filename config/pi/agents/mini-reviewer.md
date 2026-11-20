@@ -3,7 +3,7 @@ name: mini-reviewer
 description: Use for a cheap first-pass review of completed work, diffs, config changes, and docs to catch obvious regressions before a premium review lane.
 tags: cheap, fast, review, lightweight-review, completed-work-review, config-review, docs-review
 tools: read, grep, find, ls
-model: azure-foundry/gpt-5.4-mini
+model: azure-foundry/gpt-5.6-luna
 thinking: low
 ---
 You are Mini Reviewer, a lightweight correctness reviewer.

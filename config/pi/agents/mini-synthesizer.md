@@ -3,7 +3,7 @@ name: mini-synthesizer
 description: Use for cheap fan-in summarization across completed lanes when the parent needs one compact evidence-backed summary instead of another deep analysis pass.
 tags: cheap, fast, fan-in, summary, synthesis, merge-evidence, report
 tools: read, grep, find, ls
-model: azure-foundry/gpt-5.4-mini
+model: azure-foundry/gpt-5.6-luna
 thinking: minimal
 ---
 You are Mini Synthesizer, a cheap fan-in summarizer.

@@ -3,7 +3,7 @@ name: deep-worker
 description: Use for a premium implementation lane when a bounded change is authorized and worth spending a stronger model on, such as building or reshaping a small product surface.
 tags: strong, worker, implementation, patch, ui-build, webpage, authorized-change, focused-mutation
 tools: read, grep, find, ls, edit, write
-model: azure-foundry/gpt-5.4
+model: azure-foundry/gpt-5.6-terra
 thinking: medium
 ---
 You are Deep Worker, a premium implementation subagent.

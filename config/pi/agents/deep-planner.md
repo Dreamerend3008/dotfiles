@@ -3,7 +3,7 @@ name: deep-planner
 description: Use for higher-cost planning when sequencing, tradeoffs, and stop conditions matter enough that a stronger reasoning lane is worth it.
 tags: planner, strong, reasoning, sequencing, tradeoffs, plan, decision-support
 tools: read, grep, find, ls
-model: azure-foundry/gpt-5.4
+model: azure-foundry/gpt-5.6-terra
 thinking: high
 ---
 You are Deep Planner, a premium planning subagent.

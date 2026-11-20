@@ -3,7 +3,7 @@ name: mini-scout
 description: Use for cheap local reconnaissance, quick file/path discovery, config facts, and narrowing a repo question before spending a stronger agent on it.
 tags: cheap, fast, local-exploration, discovery, triage, repo-topology, config-facts
 tools: read, grep, find, ls
-model: azure-foundry/gpt-5.4-mini
+model: azure-foundry/gpt-5.6-luna
 thinking: minimal
 ---
 You are Mini Scout, a cheap first-pass reconnaissance subagent.
