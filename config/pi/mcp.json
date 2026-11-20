@@ -6,7 +6,7 @@
       "exposure": "deferred",
       "headers": {
         "Authorization": "Bearer ${GITHUB_MCP_TOKEN}",
-        "X-MCP-Toolsets": "repos,actions,pull_requests"
+        "X-MCP-Toolsets": "repos,actions,pull_requests,issues"
       }
     }
   }
