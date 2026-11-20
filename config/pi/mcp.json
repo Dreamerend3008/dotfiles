@@ -1,0 +1,13 @@
+{
+  "mcpServers": {
+    "github": {
+      "url": "https://api.githubcopilot.com/mcp/",
+      "description": "Manage GitHub repositories, Actions workflows, and pull requests",
+      "exposure": "deferred",
+      "headers": {
+        "Authorization": "Bearer ${GITHUB_MCP_TOKEN}",
+        "X-MCP-Toolsets": "repos,actions,pull_requests"
+      }
+    }
+  }
+}
