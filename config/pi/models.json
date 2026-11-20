@@ -1,4 +1,5 @@
 {
+  "$schema": "https://pi.dev/schemas/models.schema.json",
   "providers": {
     "azure-foundry": {
       "name": "Azure AI Foundry",
@@ -47,6 +48,6 @@
           }
         }
       ]
-    } 
-  } 
+    }
+  }
 }
